@@ -1,0 +1,22 @@
+# Rust build outputs
+/target/
+**/target/
+
+# Cargo lock is usually kept in libraries, but this repo may want it tracked.
+# Keep the lockfile if you want reproducible builds for binaries.
+# Cargo.lock
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Local environment files
+.env
+.env.*
