@@ -1,5 +1,25 @@
-# This .gitignore is appropriate for repositories deployed to GitHub Pages and using
-# a Gemfile as specified at https://github.com/github/pages-gem#conventional
+# Rust build outputs
+/target/
+**/target/
+
+# Cargo lock is usually kept in libraries, but this repo may want it tracked.
+# Keep the lockfile if you want reproducible builds for binaries.
+# Cargo.lock
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Local environment files
+.env
+.env.*
 
 # Basic Jekyll gitignores (synchronize to Jekyll.gitignore)
 _site/
