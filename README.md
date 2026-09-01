@@ -33,6 +33,26 @@ QuantumEnergyOS V.04 is a modular Rust-first operating system platform designed 
 - Simulation is clearly separated from real hardware behavior.
 - Security, observability, and reproducible builds are first-class concerns.
 
+## Starter architecture overview
+
+The codebase follows a layered architecture designed to keep classical system logic, service orchestration, energy telemetry, and quantum runtime concerns clearly separated.
+
+1. Classical computing layer
+   - Linux-compatible runtime boundaries and basic userspace operations.
+   - Service orchestration and platform utilities.
+2. Service layer
+   - Identity, policy, telemetry, dashboards, and system services.
+3. Quantum runtime layer
+   - Circuit and topology abstractions, measurements, and backend execution.
+4. Energy and telemetry layer
+   - Sensor and ring-buffer instrumentation, forecasting, and system metrics.
+5. Hardware abstraction layer
+   - Typed access to CPUs, buses, storage, power interfaces, and adapter models.
+6. Future QPU layer
+   - Simulator, emulator, remote, and capability-gated physical integration points.
+
+This layered approach allows the project to evolve without mixing simulation semantics with real hardware assumptions. Majorana or topological quantum support is treated as a future adapter behind documented interfaces, not a claim of direct physical control.
+
 ## Getting started
 
 1. Install Rust and Cargo.
