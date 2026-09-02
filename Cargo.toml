@@ -1,8 +1,11 @@
 [workspace]
 members = [
-  "crates/system-core",
-  "crates/quantum-runtime",
-  "crates/energy-telemetry",
+   "crates/system-core",
+   "crates/quantum-runtime",
+   "crates/energy-telemetry",
+   "crates/quartz5d",
+   "crates/identity-service",
+   "crates/hardware-abstraction",
 ]
 resolver = "2"
 
@@ -12,11 +15,38 @@ license = "MIT"
 authors = ["QuantumEnergyOS Contributors"]
 
 [workspace.dependencies]
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# Error handling
 thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging & observability
 tracing = "0.1"
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
+
+# Async runtime & IPC
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util"] }
+
+# Cryptography & security
+argon2 = "0.5"
+jsonwebtoken = "9.0"
+sha2 = "0.10"
+rand = "0.8"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Database (Phase 3)
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls", "chrono", "uuid", "json"] }
+
+# Metrics & monitoring (Phase 3)
+prometheus = { version = "0.13", optional = true }
+metrics = "0.21"
+metrics-exporter-prometheus = { version = "0.12", optional = true }
 
 [profile.dev]
 debug = true
