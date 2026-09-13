@@ -1,3 +1,4 @@
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use crate::error::{QuantumError, Result};
 use crate::simulator::QuantumSimulator;

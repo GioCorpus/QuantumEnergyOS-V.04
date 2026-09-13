@@ -14,19 +14,22 @@ QuantumEnergyOS V.04 is a modular Rust-first operating system platform designed 
 ## Repository structure
 
 - `ARCHITECTURE.md` — system architecture and design principles.
+- `docs/architecture/V.04.md` — V.04 architecture baseline and classifications.
 - `HARDWARE_ABSTRACTION.md` — hardware access and abstraction model.
 - `QUANTUM_ARCHITECTURE.md` — quantum runtime and backend architecture.
 - `ROADMAP.md` — delivery plan and milestones.
 - `THREAT_MODEL.md` — security and threat assumptions.
 - `Cargo.toml` — workspace configuration for the Rust crates.
 - `crates/` — modular Rust components.
-- `kernel/` — kernel-facing and low-level project area.
 
 ## Workspace crates
 
-- `crates/system-core` — foundational system services and orchestration.
+- `crates/system-core` — foundational system services, orchestration, and service framework.
 - `crates/quantum-runtime` — quantum runtime, topology, measurement, and backend abstractions.
 - `crates/energy-telemetry` — telemetry and ring-buffer instrumentation for energy and system metrics.
+- `crates/quartz5d` — Quartz5D data model and storage simulation.
+- `crates/identity-service` — authentication, JWT, and RBAC.
+- `crates/hardware-abstraction` — CPU/GPU/NPU and quantum backend abstraction interfaces.
 
 ## Design principles
 

@@ -93,7 +93,7 @@ pub struct QuantumJob {
     /// Job name
     pub name: String,
     /// Quantum circuit to execute
-    pub circuit: Circuit,
+    pub circuit: QuantumCircuit,
     /// Number of measurement shots
     pub shots: u32,
     /// Execution priority
@@ -122,7 +122,7 @@ pub struct QuantumJob {
 
 impl QuantumJob {
     /// Create a new quantum job
-    pub fn new(name: impl Into<String>, circuit: Circuit, shots: u32) -> Self {
+    pub fn new(name: impl Into<String>, circuit: QuantumCircuit, shots: u32) -> Self {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
@@ -396,7 +396,7 @@ mod tests {
 
     #[test]
     fn test_job_creation() {
-        let circuit = Circuit::new("test", 2);
+        let circuit = QuantumCircuit::new("test", 2).unwrap();
         let job = QuantumJob::new("test_job", circuit, 1000);
         assert_eq!(job.shots, 1000);
         assert_eq!(job.status, JobStatus::Submitted);
@@ -405,7 +405,7 @@ mod tests {
 
     #[test]
     fn test_job_builder() {
-        let circuit = Circuit::new("test", 2);
+        let circuit = QuantumCircuit::new("test", 2).unwrap();
         let job = QuantumJob::new("test_job", circuit, 1000)
             .with_priority(JobPriority::High)
             .with_timeout(600)
@@ -418,7 +418,7 @@ mod tests {
 
     #[test]
     fn test_job_status_transitions() {
-        let circuit = Circuit::new("test", 2);
+        let circuit = QuantumCircuit::new("test", 2).unwrap();
         let mut job = QuantumJob::new("test_job", circuit, 1000);
 
         assert_eq!(job.status, JobStatus::Submitted);
@@ -435,7 +435,7 @@ mod tests {
     fn test_job_queue() {
         let mut queue = JobQueue::new(100);
 
-        let circuit = Circuit::new("test", 2);
+        let circuit = QuantumCircuit::new("test", 2).unwrap();
         let job1 = QuantumJob::new("job1", circuit.clone(), 100);
         let job2 = QuantumJob::new("job2", circuit, 100).with_priority(JobPriority::High);
 
@@ -450,7 +450,7 @@ mod tests {
     #[test]
     fn test_job_queue_full() {
         let mut queue = JobQueue::new(1);
-        let circuit = Circuit::new("test", 2);
+        let circuit = QuantumCircuit::new("test", 2).unwrap();
         let job1 = QuantumJob::new("job1", circuit.clone(), 100);
         let job2 = QuantumJob::new("job2", circuit, 100);
 

@@ -582,6 +582,19 @@ The ServiceManager ensures services are initialized before any IPC communication
 
 ---
 
+## Authorization and rate limiting (STEP 3)
+
+The framework exposes `ServiceGateway` for policy-gated IPC routing:
+
+- `ServiceAccessPolicy` decides whether a caller may reach a service.
+- `AllowAllPolicy` allows every request.
+- `RequireAuthPolicy` rejects requests without an explicit user context.
+- `ServiceRateLimiter` enforces per-service request capacity over a sliding window.
+
+These hooks are part of the service framework and run before registry dispatch.
+
+---
+
 ## Future Enhancements
 
 ### Planned (Phase 3+)
@@ -658,6 +671,15 @@ crates/system-core/
 | `service_count()` | `async () -> usize` | Count services |
 | `has_service()` | `async (name) -> bool` | Check if registered |
 | `all_healthy()` | `async () -> bool` | Overall health flag |
+
+### ServiceGateway (STEP 3)
+
+| Method | Signature | Purpose |
+|--------|-----------|---------|
+| `new()` | `(registry, policy, limiter) -> Self` | Create gateway |
+| `route_authorized()` | `async (message, user) -> Result<Message, ServiceError>` | Policy-gated routing |
+| `discover()` | `async (name) -> Result<ServiceInfo, ServiceError>` | Discover service info |
+| `list_services()` | `async () -> Result<Vec<String>, ServiceError>` | List registered services |
 
 ---
 
