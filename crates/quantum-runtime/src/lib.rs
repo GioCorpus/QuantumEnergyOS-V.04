@@ -1,9 +1,12 @@
 pub mod backend;
 pub mod circuit;
+pub mod compiler;
 pub mod error;
+pub mod error_correction;
 pub mod gates;
 pub mod job;
 pub mod measurement;
+pub mod scheduler;
 pub mod simulator;
 pub mod topology;
 
@@ -18,7 +21,15 @@ pub use backend::{
     QuantumResult, MeasurementRequest, MeasurementResult, QuantumHealth,
 };
 pub use job::{QuantumJob, JobStatus, JobPriority, JobQueue, JobStatistics};
+pub use compiler::{
+    CompiledCircuit, CompilerConfig, IntermediateRepresentation, IrOperation, QuantumCompiler,
+    MAX_SUPPORTED_QUBITS,
+};
+pub use scheduler::{
+    BackendAvailability, QuantumScheduler, SchedulerConfig, SchedulerStats,
+};
 pub use measurement::{Measurement, MeasurementValue};
+pub use error_correction::{CorrectionStrategy, LogicalQubit, Syndrome};
 pub use topology::{
     MajoranaZeroMode, TetronLikeLogicalQubit, TopologicalErrorModel,
     BraidingOperation, ParityMeasurement, LatticeConfig, ErrorModelConfig,

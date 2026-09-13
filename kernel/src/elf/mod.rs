@@ -9,7 +9,9 @@ pub fn load(data: &[u8]) -> Result<ElfInfo, ElfError> {
     if data[5] != 1 { return Err(ElfError::BadEndian); }
     let machine = u16::from_le_bytes([data[18], data[19]]);
     if machine != 62 { return Err(ElfError::BadMachine); }
-    let entry = u64::from_le_bytes(data[24..32].try_into().unwrap());
+    // No unwrap() in kernel paths (§51): slice length already checked (>=64).
+    let entry_bytes: [u8; 8] = data[24..32].try_into().map_err(|_| ElfError::TooSmall)?;
+    let entry = u64::from_le_bytes(entry_bytes);
     if entry == 0 { return Err(ElfError::BadSegments); }
     Ok(ElfInfo { entry, segments: 1 })
 }

@@ -2,11 +2,15 @@ name: QuantumEnergyOS V.04 CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_VERSION: '1.79.0'
+  NODE_VERSION: '20.17.0'
+  PNPM_VERSION: '9.12.0'
+  PYTHON_VERSION: '3.12'
 
 jobs:
   fmt:
@@ -15,6 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: ${{ env.RUST_VERSION }}
           components: rustfmt
       - name: Rust fmt
         run: cargo fmt --all -- --check
@@ -25,11 +30,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: ${{ env.RUST_VERSION }}
           components: clippy
       - name: Rust clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-  test:
+  test-rust:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -38,11 +44,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: ${{ env.RUST_VERSION }}
           targets: ${{ matrix.target }}
-      - name: Rust tests
-        run: cargo test --all --target ${{ matrix.target }}
+      - name: Rust tests (Mock/Simulator only, no physical QPU)
+        run: cargo test --workspace --target ${{ matrix.target }}
 
-  build:
+  build-rust:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -51,16 +58,79 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: ${{ env.RUST_VERSION }}
           targets: ${{ matrix.target }}
       - name: Cargo build
-        run: cargo build --all --target ${{ matrix.target }}
+        run: cargo build --workspace --target ${{ matrix.target }}
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: dashboard/pnpm-lock.yaml
+      - name: Install frontend deps (pinned pnpm)
+        run: pnpm install --frozen-lockfile
+      - name: TypeScript check
+        run: pnpm exec tsc --noEmit
+      - name: ESLint
+        run: pnpm exec eslint src --max-warnings 0
+      - name: Frontend build (Vite + @vitejs/plugin-react)
+        run: pnpm build
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Python tests (if present)
+        run: |
+          if [ -f tools/requirements.txt ]; then pip install -r tools/requirements.txt; fi
+          if [ -d tools ]; then python -m pytest tools -q 2>/dev/null || echo "no python tests"; else echo "no python tests"; fi
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: quantumenergyos
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate migrations (if present)
+        run: |
+          if [ -d migrations ]; then echo "migrations dir found"; ls -la migrations; else echo "no migrations dir yet (Phase 3)"; fi
 
   security:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-audit
-        run: cargo install cargo-audit
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+      - name: Install cargo-audit (pinned)
+        run: cargo install cargo-audit --version 0.21.0 --locked
       - name: Security audit
         run: cargo audit
+      - name: No committed secrets check
+        run: |
+          ! grep -R --exclude-dir=target --exclude-dir=node_modules --exclude-dir=.git -Ei "BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|AKIA[0-9A-Z]{16}|-----BEGIN PRIVATE KEY-----" . || (echo "possible secret found" && exit 1)

@@ -11,6 +11,7 @@
 
 pub mod arch;
 pub mod boot;
+pub mod core;
 pub mod device;
 pub mod dma;
 pub mod driver;
@@ -30,6 +31,7 @@ pub mod sync;
 pub mod syscall;
 pub mod telemetry;
 pub mod time;
+pub mod tracing;
 
 pub const VERSION: &str = "1.0.0";
 pub const NAME: &str = "QEOS Kernel V1";
