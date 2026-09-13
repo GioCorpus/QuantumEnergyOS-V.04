@@ -1,0 +1,22 @@
+# QEOS Kernel V1 milestones
+
+- [x] M1 boot sequence + logging
+- [x] M2 CPU init (x86_64 HAL stub)
+- [x] M3 physical memory manager
+- [x] M4 virtual memory manager
+- [x] M5 kernel allocator/heap
+- [x] M6 interrupt subsystem stub (arch/x86_64/interrupts, idt, gdt)
+- [x] M7 timer/monotonic clock
+- [x] M8 scheduler + runqueue
+- [x] M9 processes + threads
+- [x] M10 syscall ABI + dispatcher
+- [x] M11 ELF loader (validated)
+- [x] M12 IPC channels
+- [x] M13 VFS/inode
+- [x] M14 driver model + bus
+- [x] M15 PCIe discovery stub
+- [x] M16 DMA abstraction
+- [x] M17 telemetry SPSC ring
+- [x] M18 security capabilities
+- [x] M19 userspace init contract (/qeos/init)
+- [x] M20 service framework boundary (kernel exposes IPC/syscall only; services live in crates/system-core)
