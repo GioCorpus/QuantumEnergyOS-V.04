@@ -132,9 +132,27 @@ impl QuantumSimulator {
 
     /// Measure a qubit, returning 0 or 1 with appropriate probabilities.
     ///
-    /// Uses a pseudorandom number generator to determine the outcome.
+    /// Uses a pseudorandom number generator seeded from system entropy to
+    /// determine the outcome.
     /// The outcome probabilities are determined by the state-vector amplitudes.
     pub fn measure_qubit(&mut self, qubit: usize) -> Result<u8> {
+        let mut rng = rand::thread_rng();
+        self.measure_qubit_with_rng(qubit, &mut rng)
+    }
+
+    /// Measure a qubit using a caller-supplied random number generator.
+    ///
+    /// CLASSIFICATION: SIMULATION
+    ///
+    /// Passing a deterministically seeded generator (for example
+    /// `StdRng::seed_from_u64(42)`) makes shot outcomes reproducible, which is
+    /// required for reproducible simulation runs and for CI validation of the
+    /// Quantum HAL simulator backend.
+    pub fn measure_qubit_with_rng<R: rand::Rng + ?Sized>(
+        &mut self,
+        qubit: usize,
+        rng: &mut R,
+    ) -> Result<u8> {
         if qubit >= self.num_qubits {
             return Err(QuantumError::InvalidQubitIndex {
                 index: qubit,
@@ -155,7 +173,6 @@ impl QuantumSimulator {
             }
         }
 
-        let mut rng = rand::thread_rng();
         let random_val: f64 = rng.gen();
         let measurement = if random_val < prob_zero { 0 } else { 1 };
 
@@ -182,9 +199,15 @@ impl QuantumSimulator {
 
     /// Measure all qubits.
     pub fn measure_all(&mut self) -> Result<u64> {
+        let mut rng = rand::thread_rng();
+        self.measure_all_with_rng(&mut rng)
+    }
+
+    /// Measure all qubits using a caller-supplied random number generator.
+    pub fn measure_all_with_rng<R: rand::Rng + ?Sized>(&mut self, rng: &mut R) -> Result<u64> {
         let mut result = 0u64;
         for qubit in 0..self.num_qubits {
-            let bit = self.measure_qubit(qubit)? as u64;
+            let bit = self.measure_qubit_with_rng(qubit, rng)? as u64;
             result |= bit << qubit;
         }
         Ok(result)
@@ -340,5 +363,23 @@ mod tests {
 
         let result = sim.measure_all().unwrap();
         assert_eq!(result, 0b101);
+    }
+
+    #[test]
+    fn test_seeded_measurement_is_reproducible() {
+        use rand::rngs::StdRng;
+        use rand::SeedableRng;
+
+        let mut first = QuantumSimulator::new(2).unwrap();
+        first.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
+        let mut rng_a = StdRng::seed_from_u64(42);
+        let a = first.measure_all_with_rng(&mut rng_a).unwrap();
+
+        let mut second = QuantumSimulator::new(2).unwrap();
+        second.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
+        let mut rng_b = StdRng::seed_from_u64(42);
+        let b = second.measure_all_with_rng(&mut rng_b).unwrap();
+
+        assert_eq!(a, b);
     }
 }

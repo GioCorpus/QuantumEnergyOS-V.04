@@ -3,10 +3,17 @@ members = [
    "kernel",
    "crates/system-core",
    "crates/quantum-runtime",
+   "crates/quantum-hal",
+   # DEBT(PHASE-4.1): "crates/quantum-service" was declared by an in-flight
+   # workstream but the crate does not exist in the tree, which makes the whole
+   # workspace unresolvable (`failed to load manifest for workspace member`).
+   # Re-enable the member in the same commit that adds the crate.
+   # "crates/quantum-service",
    "crates/energy-telemetry",
    "crates/quartz5d",
    "crates/identity-service",
    "crates/hardware-abstraction",
+   "crates/device-manager",
 ]
 resolver = "2"
 
@@ -45,9 +52,23 @@ chrono = { version = "0.4", features = ["serde"] }
 sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls", "chrono", "uuid", "json"] }
 
 # Metrics & monitoring (Phase 3)
-prometheus = { version = "0.13", optional = true }
+# NOTE: entries in [workspace.dependencies] cannot be `optional`. A member that
+# wants an optional metrics exporter declares `{ workspace = true, optional = true }`
+# in its own manifest.
+prometheus = "0.13"
 metrics = "0.21"
-metrics-exporter-prometheus = { version = "0.12", optional = true }
+metrics-exporter-prometheus = "0.12"
+
+# Internal crates (workspace-pinned so every member resolves one version)
+quantum-runtime = { path = "crates/quantum-runtime" }
+quantum-hal = { path = "crates/quantum-hal" }
+# DEBT(PHASE-4.1): see the workspace member list above — crate not present yet.
+# quantum-service = { path = "crates/quantum-service" }
+system-core = { path = "crates/system-core" }
+identity-service = { path = "crates/identity-service" }
+energy-telemetry = { path = "crates/energy-telemetry" }
+hardware-abstraction = { path = "crates/hardware-abstraction" }
+device-manager = { path = "crates/device-manager" }
 
 [profile.dev]
 debug = true

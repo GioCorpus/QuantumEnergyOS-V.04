@@ -1,0 +1,26 @@
+[package]
+name = "device-manager"
+version = "0.1.0"
+edition = "2021"
+description = "QEOS Phase 4.1 device stack: PCI/PCIe bus abstraction, driver lifecycle and capability-gated device access (host-testable, simulator-backed)"
+license = "MIT"
+authors = ["QuantumEnergyOS Contributors"]
+
+[lib]
+name = "device_manager"
+path = "src/lib.rs"
+
+[[bin]]
+name = "qeos-devices"
+path = "src/bin/qeos-devices.rs"
+
+[dependencies]
+hardware-abstraction = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+# Integration tests exercise the public API exactly like an external caller.
+serde_json = { workspace = true }

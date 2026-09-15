@@ -33,6 +33,27 @@ pub enum QuantumError {
     #[error("unsupported gate: {0}")]
     UnsupportedGate(String),
 
+    /// The requested hardware capability is not present.
+    ///
+    /// Used by the Quantum HAL (Phase 3) whenever a device, backend or
+    /// accelerator is not physically available. Returning this variant instead
+    /// of a fabricated result is mandatory: no backend may pretend to have
+    /// connectivity to hardware that does not exist.
+    #[error("unsupported hardware: {0}")]
+    UnsupportedHardware(String),
+
+    #[error("device not initialized: {0}")]
+    DeviceNotInitialized(String),
+
+    #[error("device calibration failed: {0}")]
+    CalibrationFailed(String),
+
+    #[error("job not found: {0}")]
+    JobNotFound(String),
+
+    #[error("job timed out: {0}")]
+    JobTimeout(String),
+
     #[error("invalid gate parameters: {0}")]
     InvalidGateParameters(String),
 
@@ -83,5 +104,25 @@ mod tests {
         
         let error_result: Result<i32> = Err(QuantumError::InvalidState("test".to_string()));
         assert!(error_result.is_err());
+    }
+
+    #[test]
+    fn test_unsupported_hardware_display() {
+        let err = QuantumError::UnsupportedHardware("no physical QPU present".to_string());
+        assert!(err.to_string().contains("unsupported hardware"));
+        assert!(err.to_string().contains("no physical QPU present"));
+    }
+
+    #[test]
+    fn test_hal_error_variants_display() {
+        let cases = vec![
+            QuantumError::DeviceNotInitialized("qpu0".to_string()),
+            QuantumError::CalibrationFailed("visibility too low".to_string()),
+            QuantumError::JobNotFound("job-1".to_string()),
+            QuantumError::JobTimeout("job-2".to_string()),
+        ];
+        for err in cases {
+            assert!(!err.to_string().is_empty());
+        }
     }
 }
