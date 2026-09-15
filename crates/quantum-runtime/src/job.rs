@@ -9,15 +9,13 @@
 /// - Resource allocation
 ///
 /// Job lifecycle:
+///
+/// ```text
+/// Submitted -> Queued -> Running -> Completed/Failed
+///                              -> Cancelled
 /// ```
-/// Submitted
-///    ↓
-/// Queued → Running → Completed/Failed
-///              ↓
-///          Cancelled
-/// ```
-
 use crate::circuit::QuantumCircuit;
+use crate::error::{QuantumError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -260,22 +258,29 @@ impl QuantumJob {
     pub fn is_terminal(&self) -> bool {
         matches!(
             self.status,
-            JobStatus::Completed | JobStatus::Failed | JobStatus::Cancelled | JobStatus::Unsupported
+            JobStatus::Completed
+                | JobStatus::Failed
+                | JobStatus::Cancelled
+                | JobStatus::Unsupported
         )
     }
 
     /// Validate job
-    pub fn validate(&self) -> Result<(), String> {
+    pub fn validate(&self) -> Result<()> {
         // Validate circuit
         self.circuit.validate()?;
 
         // Validate shots
         if self.shots == 0 {
-            return Err("shots must be > 0".to_string());
+            return Err(QuantumError::InvalidGateParameters(
+                "shots must be > 0".to_string(),
+            ));
         }
 
         if self.shots > 1_000_000 {
-            return Err("shots must be ≤ 1,000,000".to_string());
+            return Err(QuantumError::InvalidGateParameters(
+                "shots must be <= 1,000,000".to_string(),
+            ));
         }
 
         Ok(())
@@ -333,12 +338,12 @@ impl JobQueue {
     }
 
     /// Enqueue a job
-    pub fn enqueue(&mut self, job: QuantumJob) -> Result<(), String> {
+    pub fn enqueue(&mut self, job: QuantumJob) -> Result<()> {
         let queue_idx = job.priority as usize;
         let total_size: usize = self.queues.iter().map(|q| q.len()).sum();
 
         if total_size >= self.max_queue_size {
-            return Err("Queue is full".to_string());
+            return Err(QuantumError::AllocationFailed("Queue is full".to_string()));
         }
 
         self.queues[queue_idx].push(job);

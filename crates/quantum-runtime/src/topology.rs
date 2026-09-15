@@ -206,10 +206,12 @@ pub struct BraidingOperation {
 
 impl BraidingOperation {
     pub fn new(from: impl Into<String>, to: impl Into<String>) -> Self {
+        let from_str: String = from.into();
+        let to_str: String = to.into();
         Self {
-            from: from.into(),
-            to: to.into(),
-            description: format!("Braid {} → {}", from.into(), to.into()),
+            from: from_str.clone(),
+            to: to_str.clone(),
+            description: format!("Braid {} -> {}", from_str, to_str),
             phase: 0.0,
         }
     }

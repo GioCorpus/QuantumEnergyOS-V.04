@@ -65,6 +65,18 @@ pub enum QuantumError {
 
     #[error("serialization error: {0}")]
     SerializationError(String),
+
+    #[error("resource limit exceeded: {0}")]
+    ResourceLimit(String),
+
+    #[error("simulation resource error: {0}")]
+    SimulationResource(String),
+
+    #[error("decoder error: {0}")]
+    DecoderError(String),
+
+    #[error("capability not supported: {0}")]
+    CapabilityNotSupported(String),
 }
 
 impl From<std::io::Error> for QuantumError {
@@ -101,7 +113,7 @@ mod tests {
     fn test_result_type() {
         let result: Result<i32> = Ok(42);
         assert!(result.is_ok());
-        
+
         let error_result: Result<i32> = Err(QuantumError::InvalidState("test".to_string()));
         assert!(error_result.is_err());
     }

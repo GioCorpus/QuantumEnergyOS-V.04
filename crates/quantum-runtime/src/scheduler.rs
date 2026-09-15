@@ -7,7 +7,6 @@
 /// so physical/remote targets are never assumed present.
 ///
 /// Physical quantum hardware is never required; tests use Mock/Simulator paths.
-
 use crate::backend::QuantumBackendType;
 use crate::error::{QuantumError, Result};
 use crate::job::{JobPriority, JobStatus, QuantumJob};
@@ -157,8 +156,7 @@ impl QuantumScheduler {
             // Allow explicit registration to enable remote.
             if !self.backend_available(&job) {
                 return Err(QuantumError::BackendNotAvailable(
-                    "remote QPU scheduling requires explicit availability registration"
-                        .to_string(),
+                    "remote QPU scheduling requires explicit availability registration".to_string(),
                 ));
             }
         }
@@ -346,7 +344,8 @@ mod tests {
     fn test_priority_ordering() {
         let mut s = QuantumScheduler::new(SchedulerConfig::default());
         s.submit(test_job("low", JobPriority::Low)).unwrap();
-        s.submit(test_job("critical", JobPriority::Critical)).unwrap();
+        s.submit(test_job("critical", JobPriority::Critical))
+            .unwrap();
         s.submit(test_job("normal", JobPriority::Normal)).unwrap();
         let first = s.next().unwrap();
         assert_eq!(first.name, "critical");

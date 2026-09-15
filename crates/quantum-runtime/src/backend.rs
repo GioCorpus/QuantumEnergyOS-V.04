@@ -1,7 +1,7 @@
-use rand::Rng;
-use serde::{Deserialize, Serialize};
 use crate::error::{QuantumError, Result};
 use crate::simulator::QuantumSimulator;
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 
 /// Classification of quantum backend types.
 /// Every simulation must explicitly identify its category.
@@ -21,6 +21,17 @@ pub struct SimulationMetadata {
     pub model: String,
     pub assumptions: Vec<String>,
     pub fidelity: Option<f64>,
+}
+
+impl Default for SimulationMetadata {
+    fn default() -> Self {
+        Self {
+            backend: QuantumBackendType::Simulation,
+            model: "unspecified-simulation-model".to_string(),
+            assumptions: Vec::new(),
+            fidelity: None,
+        }
+    }
 }
 
 /// Capabilities reported by a quantum backend.
@@ -209,7 +220,8 @@ impl QuantumProcessor for SimulatorBackend {
 
             // Sample from the probability distribution without cloning the simulator
             let mut rng = rand::thread_rng();
-            let mut counts: std::collections::HashMap<u64, usize> = std::collections::HashMap::new();
+            let mut counts: std::collections::HashMap<u64, usize> =
+                std::collections::HashMap::new();
             let mut bits = vec![];
 
             for _ in 0..shots {
@@ -237,7 +249,10 @@ impl QuantumProcessor for SimulatorBackend {
                 }
             }
 
-            Ok(MeasurementResult { bits, probabilities })
+            Ok(MeasurementResult {
+                bits,
+                probabilities,
+            })
         } else {
             Err(QuantumError::BackendNotAvailable(
                 "Simulator not allocated".to_string(),
@@ -356,22 +371,30 @@ impl QuantumProcessor for MajoranaBackend {
     }
 
     fn allocate(&mut self, _request: AllocationRequest) -> Result<QubitRegister> {
-        self.inner.ensure_enabled("MajoranaBackend is disabled: documented hardware interface required")?;
+        self.inner.ensure_enabled(
+            "MajoranaBackend is disabled: documented hardware interface required",
+        )?;
         Ok(QubitRegister::default())
     }
 
     fn execute(&mut self, _circuit_info: QuantumCircuitInfo) -> Result<QuantumResult> {
-        self.inner.ensure_enabled("MajoranaBackend is disabled: documented hardware interface required")?;
+        self.inner.ensure_enabled(
+            "MajoranaBackend is disabled: documented hardware interface required",
+        )?;
         Ok(QuantumResult::default())
     }
 
     fn measure(&mut self, _request: MeasurementRequest) -> Result<MeasurementResult> {
-        self.inner.ensure_enabled("MajoranaBackend is disabled: documented hardware interface required")?;
+        self.inner.ensure_enabled(
+            "MajoranaBackend is disabled: documented hardware interface required",
+        )?;
         Ok(MeasurementResult::default())
     }
 
     fn reset(&mut self) -> Result<()> {
-        self.inner.ensure_enabled("MajoranaBackend is disabled: documented hardware interface required")?;
+        self.inner.ensure_enabled(
+            "MajoranaBackend is disabled: documented hardware interface required",
+        )?;
         Ok(())
     }
 
@@ -433,22 +456,26 @@ impl QuantumProcessor for AzureQuantumBackend {
     }
 
     fn allocate(&mut self, _request: AllocationRequest) -> Result<QubitRegister> {
-        self.inner.ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
+        self.inner
+            .ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
         Ok(QubitRegister::default())
     }
 
     fn execute(&mut self, _circuit_info: QuantumCircuitInfo) -> Result<QuantumResult> {
-        self.inner.ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
+        self.inner
+            .ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
         Ok(QuantumResult::default())
     }
 
     fn measure(&mut self, _request: MeasurementRequest) -> Result<MeasurementResult> {
-        self.inner.ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
+        self.inner
+            .ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
         Ok(MeasurementResult::default())
     }
 
     fn reset(&mut self) -> Result<()> {
-        self.inner.ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
+        self.inner
+            .ensure_enabled("AzureQuantumBackend is disabled: configure Azure workspace")?;
         Ok(())
     }
 
@@ -720,25 +747,39 @@ mod tests {
         let mut backend = LocalEmulatorBackend::new();
         assert_eq!(backend.health().status, "EMULATION");
 
-        let alloc = backend.allocate(AllocationRequest {
-            qubits: 8,
-            logical_qubits: 0,
-        }).unwrap();
+        let alloc = backend
+            .allocate(AllocationRequest {
+                qubits: 8,
+                logical_qubits: 0,
+            })
+            .unwrap();
         assert_eq!(alloc.qubits, 8);
 
-        let result = backend.execute(QuantumCircuitInfo {
-            name: "test".to_string(),
-            qubits: 8,
-            gates: 10,
-        }).unwrap();
+        let result = backend
+            .execute(QuantumCircuitInfo {
+                name: "test".to_string(),
+                qubits: 8,
+                gates: 10,
+            })
+            .unwrap();
         assert_eq!(result.status, "EMULATION_ONLY");
     }
 
     #[test]
     fn test_emulator_bounds() {
         let mut backend = LocalEmulatorBackend::new();
-        assert!(backend.allocate(AllocationRequest { qubits: 0, logical_qubits: 0 }).is_err());
-        assert!(backend.allocate(AllocationRequest { qubits: 33, logical_qubits: 0 }).is_err());
+        assert!(backend
+            .allocate(AllocationRequest {
+                qubits: 0,
+                logical_qubits: 0
+            })
+            .is_err());
+        assert!(backend
+            .allocate(AllocationRequest {
+                qubits: 33,
+                logical_qubits: 0
+            })
+            .is_err());
     }
 
     #[test]

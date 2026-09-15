@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 /// Quantum gates supported by the simulator
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -15,6 +14,12 @@ pub enum QuantumGate {
 
     /// Pauli-Z gate: phase flip
     PauliZ,
+
+    /// S gate: sqrt(Z), phase pi/2
+    SGate,
+
+    /// T gate: sqrt(S), phase pi/4
+    TGate,
 
     /// Phase gate: applies phase
     Phase { theta: f64 },
@@ -38,10 +43,23 @@ pub enum QuantumGate {
     Swap { qubit1: usize, qubit2: usize },
 
     /// Toffoli gate (CCX): three-qubit gate
-    Toffoli { control1: usize, control2: usize, target: usize },
+    Toffoli {
+        control1: usize,
+        control2: usize,
+        target: usize,
+    },
+
+    /// Reset a qubit to |0> (simulator operation).
+    Reset { qubit: usize },
+
+    /// Barrier: scheduling hint, no state change (identity for simulation).
+    Barrier,
 
     /// Measurement: collapses qubit to 0 or 1
     Measurement { qubit: usize },
+
+    /// Conditional X conditioned on a classical bit (feed-forward model).
+    ConditionalX { qubit: usize, classical_bit: u8 },
 }
 
 impl QuantumGate {
@@ -55,30 +73,22 @@ impl QuantumGate {
                     [Complex::new(inv_sqrt2, 0.0), Complex::new(-inv_sqrt2, 0.0)],
                 ])
             }
-            QuantumGate::PauliX => {
-                Some([
-                    [Complex::zero(), Complex::one()],
-                    [Complex::one(), Complex::zero()],
-                ])
-            }
-            QuantumGate::PauliY => {
-                Some([
-                    [Complex::zero(), Complex::new(0.0, -1.0)],
-                    [Complex::new(0.0, 1.0), Complex::zero()],
-                ])
-            }
-            QuantumGate::PauliZ => {
-                Some([
-                    [Complex::one(), Complex::zero()],
-                    [Complex::zero(), Complex::new(-1.0, 0.0)],
-                ])
-            }
-            QuantumGate::Phase { theta } => {
-                Some([
-                    [Complex::one(), Complex::zero()],
-                    [Complex::zero(), Complex::polar(1.0, *theta)],
-                ])
-            }
+            QuantumGate::PauliX => Some([
+                [Complex::zero(), Complex::one()],
+                [Complex::one(), Complex::zero()],
+            ]),
+            QuantumGate::PauliY => Some([
+                [Complex::zero(), Complex::new(0.0, -1.0)],
+                [Complex::new(0.0, 1.0), Complex::zero()],
+            ]),
+            QuantumGate::PauliZ => Some([
+                [Complex::one(), Complex::zero()],
+                [Complex::zero(), Complex::new(-1.0, 0.0)],
+            ]),
+            QuantumGate::Phase { theta } => Some([
+                [Complex::one(), Complex::zero()],
+                [Complex::zero(), Complex::polar(1.0, *theta)],
+            ]),
             QuantumGate::RotationX { theta } => {
                 let cos_half = (theta / 2.0).cos();
                 let sin_half = (theta / 2.0).sin();
@@ -95,12 +105,25 @@ impl QuantumGate {
                     [Complex::new(sin_half, 0.0), Complex::new(cos_half, 0.0)],
                 ])
             }
-            QuantumGate::RotationZ { theta } => {
-                Some([
-                    [Complex::polar(1.0, -theta / 2.0), Complex::zero()],
-                    [Complex::zero(), Complex::polar(1.0, theta / 2.0)],
-                ])
-            }
+            QuantumGate::RotationZ { theta } => Some([
+                [Complex::polar(1.0, -theta / 2.0), Complex::zero()],
+                [Complex::zero(), Complex::polar(1.0, theta / 2.0)],
+            ]),
+            QuantumGate::SGate => Some([
+                [Complex::one(), Complex::zero()],
+                [Complex::zero(), Complex::new(0.0, 1.0)],
+            ]),
+            QuantumGate::TGate => Some([
+                [Complex::one(), Complex::zero()],
+                [
+                    Complex::zero(),
+                    Complex::polar(1.0, std::f64::consts::FRAC_PI_4),
+                ],
+            ]),
+            QuantumGate::Barrier => Some([
+                [Complex::one(), Complex::zero()],
+                [Complex::zero(), Complex::one()],
+            ]),
             _ => None,
         }
     }
@@ -113,10 +136,13 @@ impl QuantumGate {
                 | QuantumGate::PauliX
                 | QuantumGate::PauliY
                 | QuantumGate::PauliZ
+                | QuantumGate::SGate
+                | QuantumGate::TGate
                 | QuantumGate::Phase { .. }
                 | QuantumGate::RotationX { .. }
                 | QuantumGate::RotationY { .. }
                 | QuantumGate::RotationZ { .. }
+                | QuantumGate::Barrier
                 | QuantumGate::Measurement { .. }
         )
     }
@@ -125,9 +151,7 @@ impl QuantumGate {
     pub fn is_two_qubit(&self) -> bool {
         matches!(
             self,
-            QuantumGate::CNOT { .. }
-                | QuantumGate::ControlledZ { .. }
-                | QuantumGate::Swap { .. }
+            QuantumGate::CNOT { .. } | QuantumGate::ControlledZ { .. } | QuantumGate::Swap { .. }
         )
     }
 
@@ -143,6 +167,8 @@ impl QuantumGate {
             QuantumGate::PauliX => "X",
             QuantumGate::PauliY => "Y",
             QuantumGate::PauliZ => "Z",
+            QuantumGate::SGate => "S",
+            QuantumGate::TGate => "T",
             QuantumGate::Phase { .. } => "Phase",
             QuantumGate::RotationX { .. } => "RX",
             QuantumGate::RotationY { .. } => "RY",
@@ -151,6 +177,9 @@ impl QuantumGate {
             QuantumGate::ControlledZ { .. } => "CZ",
             QuantumGate::Swap { .. } => "SWAP",
             QuantumGate::Toffoli { .. } => "CCX",
+            QuantumGate::Reset { .. } => "RESET",
+            QuantumGate::Barrier => "BARRIER",
+            QuantumGate::ConditionalX { .. } => "COND-X",
             QuantumGate::Measurement { .. } => "Measure",
         }
     }
@@ -267,7 +296,7 @@ impl<'de> Deserialize<'de> for Complex {
     where
         D: serde::Deserializer<'de>,
     {
-        use serde::de::{self, Deserialize, Deserializer, Visitor};
+        use serde::de::{self, Visitor};
         use std::fmt;
 
         struct ComplexVisitor;
@@ -308,6 +337,7 @@ impl<'de> Deserialize<'de> for Complex {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f64::consts::PI;
 
     #[test]
     fn test_complex_arithmetic() {
@@ -367,7 +397,10 @@ mod tests {
 
     #[test]
     fn test_cnot_gate() {
-        let cnot = QuantumGate::CNOT { control: 0, target: 1 };
+        let cnot = QuantumGate::CNOT {
+            control: 0,
+            target: 1,
+        };
         assert!(cnot.is_two_qubit());
         assert_eq!(cnot.name(), "CNOT");
     }

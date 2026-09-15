@@ -14,6 +14,7 @@ members = [
    "crates/identity-service",
    "crates/hardware-abstraction",
    "crates/device-manager",
+   "crates/qeos-qpu",
 ]
 resolver = "2"
 
@@ -62,6 +63,7 @@ metrics-exporter-prometheus = "0.12"
 # Internal crates (workspace-pinned so every member resolves one version)
 quantum-runtime = { path = "crates/quantum-runtime" }
 quantum-hal = { path = "crates/quantum-hal" }
+qeos-qpu = { path = "crates/qeos-qpu" }
 # DEBT(PHASE-4.1): see the workspace member list above — crate not present yet.
 # quantum-service = { path = "crates/quantum-service" }
 system-core = { path = "crates/system-core" }

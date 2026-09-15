@@ -3,7 +3,6 @@
 /// Classical models of topological protection concepts: parity checks,
 /// syndrome extraction, repetition-code logical encoding. All outputs are
 /// explicitly labeled as models; no claim of physical Majorana behavior.
-
 use crate::measurement::{Measurement, MeasurementValue};
 use serde::{Deserialize, Serialize};
 
@@ -56,10 +55,7 @@ pub struct LogicalQubit {
 impl LogicalQubit {
     pub fn encode(bit: u8, replicas: usize, strategy: CorrectionStrategy) -> Self {
         let physical = vec![bit & 1; replicas.max(1)];
-        Self {
-            physical,
-            strategy,
-        }
+        Self { physical, strategy }
     }
 
     /// Majority-vote decode. Returns None on tie (even split).

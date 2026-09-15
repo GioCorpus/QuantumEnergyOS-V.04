@@ -1,19 +1,13 @@
 /// Quantum Compiler: High-Level Circuit -> IR -> Backend representation -> Execution
 ///
 /// Pipeline:
+///
 /// ```text
-/// High-Level Circuit
-///         ↓
-/// Intermediate Representation (IR)
-///         ↓
-/// Backend-specific representation
-///         ↓
-/// Execution
+/// High-Level Circuit -> IR -> Backend representation -> Execution
 /// ```
 ///
 /// The compiler never claims hardware execution. Every output records the
 /// intended `QuantumBackendType` and whether lowering is simulation-only.
-
 use crate::backend::QuantumBackendType;
 use crate::circuit::QuantumCircuit;
 use crate::error::{QuantumError, Result};
@@ -190,6 +184,20 @@ impl QuantumCompiler {
                 QuantumGate::Measurement { qubit } => {
                     let mut op = IrOperation::new("measure", vec![*qubit]);
                     op.note = Some(format!("c[{qubit}]"));
+                    ops.push(op);
+                }
+                QuantumGate::SGate => ops.push(IrOperation::new("s-gate", vec![0])),
+                QuantumGate::TGate => ops.push(IrOperation::new("t-gate", vec![0])),
+                QuantumGate::Reset { qubit } => {
+                    ops.push(IrOperation::new("reset", vec![*qubit]));
+                }
+                QuantumGate::Barrier => ops.push(IrOperation::new("barrier", vec![])),
+                QuantumGate::ConditionalX {
+                    qubit,
+                    classical_bit,
+                } => {
+                    let mut op = IrOperation::new("cond-x", vec![*qubit]);
+                    op.note = Some(format!("classical_bit={classical_bit}"));
                     ops.push(op);
                 }
             }

@@ -1,7 +1,13 @@
 [package]
 name = "quantum-runtime"
-version = "0.1.0"
+version = "0.4.3"
 edition = "2021"
+description = "QEOS Phase 4.3 Majorana quantum runtime: IR, CPU state-vector simulator, Majorana model, noise, error correction, experiments"
+license = "MIT"
+
+[lib]
+name = "quantum_runtime"
+path = "src/lib.rs"
 
 [dependencies]
 serde = { workspace = true }
@@ -10,3 +16,6 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 uuid = { workspace = true }
 rand = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

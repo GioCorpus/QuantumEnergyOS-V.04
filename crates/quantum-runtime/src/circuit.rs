@@ -108,7 +108,9 @@ impl QuantumCircuit {
     /// Validate that a gate can be applied to this circuit
     fn validate_gate(&self, gate: &QuantumGate) -> Result<()> {
         match gate {
-            QuantumGate::Measurement { qubit } => {
+            QuantumGate::Measurement { qubit }
+            | QuantumGate::Reset { qubit }
+            | QuantumGate::ConditionalX { qubit, .. } => {
                 if *qubit >= self.num_qubits {
                     return Err(QuantumError::InvalidQubitIndex {
                         index: *qubit,
@@ -209,7 +211,9 @@ impl QuantumCircuit {
 
     /// Get the total number of operations
     pub fn operation_count(&self) -> usize {
-        self.metadata.single_qubit_gate_count + self.metadata.two_qubit_gate_count + self.metadata.measurement_count
+        self.metadata.single_qubit_gate_count
+            + self.metadata.two_qubit_gate_count
+            + self.metadata.measurement_count
     }
 
     /// Check if circuit has measurements
@@ -232,12 +236,17 @@ impl QuantumCircuit {
     }
 
     /// Validate circuit constraints.
-    pub fn validate(&self) -> Result<(), String> {
+    pub fn validate(&self) -> Result<()> {
         if self.num_qubits == 0 {
-            return Err("Circuit must have at least 1 qubit".to_string());
+            return Err(QuantumError::InvalidQubitCount {
+                expected: 1,
+                got: 0,
+            });
         }
         if self.gates.is_empty() {
-            return Err("Circuit has no gates".to_string());
+            return Err(QuantumError::CompilationFailed(
+                "Circuit has no gates".to_string(),
+            ));
         }
         Ok(())
     }
@@ -271,7 +280,7 @@ mod tests {
     fn test_add_single_qubit_gate() {
         let mut circuit = QuantumCircuit::new("test", 2).unwrap();
         circuit.add_gate(QuantumGate::Hadamard).unwrap();
-        
+
         assert_eq!(circuit.gate_count(), 1);
         assert_eq!(circuit.metadata.single_qubit_gate_count, 1);
     }
@@ -279,8 +288,13 @@ mod tests {
     #[test]
     fn test_add_two_qubit_gate() {
         let mut circuit = QuantumCircuit::new("test", 2).unwrap();
-        circuit.add_gate(QuantumGate::CNOT { control: 0, target: 1 }).unwrap();
-        
+        circuit
+            .add_gate(QuantumGate::CNOT {
+                control: 0,
+                target: 1,
+            })
+            .unwrap();
+
         assert_eq!(circuit.gate_count(), 1);
         assert_eq!(circuit.metadata.two_qubit_gate_count, 1);
     }
@@ -288,9 +302,13 @@ mod tests {
     #[test]
     fn test_add_measurement() {
         let mut circuit = QuantumCircuit::new("test", 2).unwrap();
-        circuit.add_gate(QuantumGate::Measurement { qubit: 0 }).unwrap();
-        circuit.add_gate(QuantumGate::Measurement { qubit: 1 }).unwrap();
-        
+        circuit
+            .add_gate(QuantumGate::Measurement { qubit: 0 })
+            .unwrap();
+        circuit
+            .add_gate(QuantumGate::Measurement { qubit: 1 })
+            .unwrap();
+
         assert_eq!(circuit.gate_count(), 2);
         assert_eq!(circuit.metadata.measurement_count, 2);
         assert_eq!(circuit.num_classical_bits, 2);
@@ -307,7 +325,10 @@ mod tests {
     #[test]
     fn test_cnot_control_target_different() {
         let mut circuit = QuantumCircuit::new("test", 2).unwrap();
-        let result = circuit.add_gate(QuantumGate::CNOT { control: 0, target: 0 });
+        let result = circuit.add_gate(QuantumGate::CNOT {
+            control: 0,
+            target: 0,
+        });
         assert!(result.is_err());
     }
 
@@ -316,7 +337,7 @@ mod tests {
         let circuit = QuantumCircuit::new("test", 2)
             .unwrap()
             .with_description("A test circuit");
-        
+
         assert!(circuit.metadata.description.is_some());
         assert_eq!(circuit.metadata.description.unwrap(), "A test circuit");
     }
@@ -325,10 +346,19 @@ mod tests {
     fn test_circuit_summary() {
         let mut circuit = QuantumCircuit::new("bell", 2).unwrap();
         circuit.add_gate(QuantumGate::Hadamard).unwrap();
-        circuit.add_gate(QuantumGate::CNOT { control: 0, target: 1 }).unwrap();
-        circuit.add_gate(QuantumGate::Measurement { qubit: 0 }).unwrap();
-        circuit.add_gate(QuantumGate::Measurement { qubit: 1 }).unwrap();
-        
+        circuit
+            .add_gate(QuantumGate::CNOT {
+                control: 0,
+                target: 1,
+            })
+            .unwrap();
+        circuit
+            .add_gate(QuantumGate::Measurement { qubit: 0 })
+            .unwrap();
+        circuit
+            .add_gate(QuantumGate::Measurement { qubit: 1 })
+            .unwrap();
+
         let summary = circuit.summary();
         assert!(summary.contains("bell"));
         assert!(summary.contains("2 qubits"));
@@ -361,8 +391,13 @@ mod tests {
     fn test_operation_count() {
         let mut circuit = QuantumCircuit::new("test", 2).unwrap();
         circuit.add_gate(QuantumGate::Hadamard).unwrap();
-        circuit.add_gate(QuantumGate::CNOT { control: 0, target: 1 }).unwrap();
-        
+        circuit
+            .add_gate(QuantumGate::CNOT {
+                control: 0,
+                target: 1,
+            })
+            .unwrap();
+
         assert_eq!(circuit.operation_count(), 2);
     }
 }

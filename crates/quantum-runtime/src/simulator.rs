@@ -1,8 +1,6 @@
 use crate::error::{QuantumError, Result};
 use crate::gates::{Complex, QuantumGate};
-use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 /// State vector quantum simulator.
 ///
@@ -36,7 +34,11 @@ impl QuantumSimulator {
         state[0] = Complex::one();
         let scratch = vec![Complex::zero(); dim];
 
-        Ok(Self { state, num_qubits, scratch })
+        Ok(Self {
+            state,
+            num_qubits,
+            scratch,
+        })
     }
 
     /// Get the number of qubits.
@@ -67,6 +69,22 @@ impl QuantumSimulator {
         match gate {
             QuantumGate::Measurement { qubit } => {
                 self.measure_qubit(*qubit)?;
+            }
+            QuantumGate::Reset { qubit } => {
+                self.reset_qubit(*qubit)?;
+            }
+            QuantumGate::ConditionalX {
+                qubit,
+                classical_bit,
+            } => {
+                if *classical_bit & 1 == 1 {
+                    self.apply_single_qubit_matrix(
+                        &QuantumGate::PauliX
+                            .single_qubit_matrix()
+                            .expect("PauliX matrix"),
+                        *qubit,
+                    )?;
+                }
             }
             _ => {
                 if let Some(matrix) = gate.single_qubit_matrix() {
@@ -104,6 +122,22 @@ impl QuantumSimulator {
         Ok(())
     }
 
+    /// Check allocation resources before creating large state vectors.
+    /// Returns `SimulationResource` instead of risking OOM.
+    pub fn check_resources(num_qubits: usize) -> Result<()> {
+        if num_qubits > 20 {
+            return Err(QuantumError::SimulationResource(format!(
+                "state vector too large: {num_qubits} qubits exceeds 20-qubit limit"
+            )));
+        }
+        Ok(())
+    }
+
+    /// Maximum tested qubit count for this reference engine.
+    pub fn max_qubits() -> usize {
+        20
+    }
+
     /// Apply a CNOT gate (two-qubit gate).
     pub fn apply_cnot(&mut self, control: usize, target: usize) -> Result<()> {
         if control >= self.num_qubits || target >= self.num_qubits {
@@ -120,13 +154,87 @@ impl QuantumSimulator {
         }
 
         let dim = 1 << self.num_qubits;
+        // Swap each pair once: only visit the member with target bit == 0.
         for i in 0..dim {
-            if ((i >> control) & 1) == 1 {
+            if ((i >> control) & 1) == 1 && ((i >> target) & 1) == 0 {
                 let flipped = i ^ (1 << target);
                 self.state.swap(i, flipped);
             }
         }
 
+        Ok(())
+    }
+
+    /// Apply a CZ gate (two-qubit gate): phase flip when both bits are 1.
+    pub fn apply_cz(&mut self, control: usize, target: usize) -> Result<()> {
+        if control >= self.num_qubits || target >= self.num_qubits {
+            return Err(QuantumError::InvalidQubitIndex {
+                index: control.max(target),
+                max: self.num_qubits - 1,
+            });
+        }
+        if control == target {
+            return Err(QuantumError::InvalidGateParameters(
+                "Control and target must be different".to_string(),
+            ));
+        }
+        let dim = 1 << self.num_qubits;
+        for i in 0..dim {
+            if ((i >> control) & 1) == 1 && ((i >> target) & 1) == 1 {
+                self.state[i] = self.state[i] * Complex::new(-1.0, 0.0);
+            }
+        }
+        Ok(())
+    }
+
+    /// Apply a SWAP gate between two qubits.
+    pub fn apply_swap(&mut self, qubit1: usize, qubit2: usize) -> Result<()> {
+        if qubit1 >= self.num_qubits || qubit2 >= self.num_qubits {
+            return Err(QuantumError::InvalidQubitIndex {
+                index: qubit1.max(qubit2),
+                max: self.num_qubits - 1,
+            });
+        }
+        if qubit1 == qubit2 {
+            return Ok(());
+        }
+        let dim = 1 << self.num_qubits;
+        for i in 0..dim {
+            let b1 = (i >> qubit1) & 1;
+            let b2 = (i >> qubit2) & 1;
+            if b1 != b2 {
+                let j = i ^ ((1 << qubit1) | (1 << qubit2));
+                if i < j {
+                    self.state.swap(i, j);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Apply a Toffoli (CCX) gate.
+    pub fn apply_toffoli(&mut self, control1: usize, control2: usize, target: usize) -> Result<()> {
+        for q in [control1, control2, target] {
+            if q >= self.num_qubits {
+                return Err(QuantumError::InvalidQubitIndex {
+                    index: q,
+                    max: self.num_qubits - 1,
+                });
+            }
+        }
+        if control1 == control2 || control1 == target || control2 == target {
+            return Err(QuantumError::InvalidGateParameters(
+                "Toffoli qubits must be distinct".to_string(),
+            ));
+        }
+        let dim = 1 << self.num_qubits;
+        for i in 0..dim {
+            if ((i >> control1) & 1) == 1 && ((i >> control2) & 1) == 1 && ((i >> target) & 1) == 0
+            {
+                let flipped = i ^ (1 << target);
+                self.state.swap(i, flipped);
+            }
+        }
         Ok(())
     }
 
@@ -197,6 +305,26 @@ impl QuantumSimulator {
         Ok(measurement)
     }
 
+    /// Reset one qubit to |0> by measurement + conditional flip (model).
+    pub fn reset_qubit(&mut self, qubit: usize) -> Result<()> {
+        if qubit >= self.num_qubits {
+            return Err(QuantumError::InvalidQubitIndex {
+                index: qubit,
+                max: self.num_qubits - 1,
+            });
+        }
+        let bit = self.measure_qubit(qubit)?;
+        if bit == 1 {
+            self.apply_single_qubit_matrix(
+                &QuantumGate::PauliX
+                    .single_qubit_matrix()
+                    .expect("PauliX matrix"),
+                qubit,
+            )?;
+        }
+        Ok(())
+    }
+
     /// Measure all qubits.
     pub fn measure_all(&mut self) -> Result<u64> {
         let mut rng = rand::thread_rng();
@@ -246,6 +374,7 @@ impl QuantumSimulator {
 mod tests {
     use super::*;
     use crate::gates::QuantumGate;
+    use std::f64::consts::PI;
 
     #[test]
     fn test_simulator_creation() {
@@ -290,7 +419,8 @@ mod tests {
     fn test_cnot_gate() {
         let mut sim = QuantumSimulator::new(2).unwrap();
 
-        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 0).unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 0)
+            .unwrap();
         sim.apply_cnot(0, 1).unwrap();
 
         assert_eq!(sim.state()[3], Complex::one());
@@ -300,7 +430,8 @@ mod tests {
     fn test_measurement_collapses_state() {
         let mut sim = QuantumSimulator::new(1).unwrap();
 
-        sim.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::Hadamard, 0)
+            .unwrap();
 
         let result = sim.measure_qubit(0).unwrap();
         assert!(result == 0 || result == 1);
@@ -312,7 +443,8 @@ mod tests {
     fn test_probabilities() {
         let mut sim = QuantumSimulator::new(1).unwrap();
 
-        sim.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::Hadamard, 0)
+            .unwrap();
 
         let probs = sim.probabilities();
         assert_eq!(probs.len(), 2);
@@ -325,8 +457,10 @@ mod tests {
     fn test_reset() {
         let mut sim = QuantumSimulator::new(2).unwrap();
 
-        sim.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
-        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 1).unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::Hadamard, 0)
+            .unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 1)
+            .unwrap();
 
         sim.reset();
 
@@ -358,8 +492,10 @@ mod tests {
     fn test_measure_all_deterministic() {
         let mut sim = QuantumSimulator::new(3).unwrap();
 
-        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 0).unwrap();
-        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 2).unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 0)
+            .unwrap();
+        sim.apply_single_qubit_gate(&QuantumGate::PauliX, 2)
+            .unwrap();
 
         let result = sim.measure_all().unwrap();
         assert_eq!(result, 0b101);
@@ -371,12 +507,16 @@ mod tests {
         use rand::SeedableRng;
 
         let mut first = QuantumSimulator::new(2).unwrap();
-        first.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
+        first
+            .apply_single_qubit_gate(&QuantumGate::Hadamard, 0)
+            .unwrap();
         let mut rng_a = StdRng::seed_from_u64(42);
         let a = first.measure_all_with_rng(&mut rng_a).unwrap();
 
         let mut second = QuantumSimulator::new(2).unwrap();
-        second.apply_single_qubit_gate(&QuantumGate::Hadamard, 0).unwrap();
+        second
+            .apply_single_qubit_gate(&QuantumGate::Hadamard, 0)
+            .unwrap();
         let mut rng_b = StdRng::seed_from_u64(42);
         let b = second.measure_all_with_rng(&mut rng_b).unwrap();
 

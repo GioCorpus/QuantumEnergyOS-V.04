@@ -1,0 +1,15 @@
+[package]
+name = "qeos-qpu"
+version = "0.4.3"
+edition = "2021"
+description = "QEOS Phase 4.3 QPU CLI: backends, simulation, Majorana, benchmarks, experiments (simulator-backed)"
+
+[[bin]]
+name = "qeos-qpu"
+path = "src/main.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+quantum-runtime = { workspace = true }
+quantum-hal = { workspace = true }
