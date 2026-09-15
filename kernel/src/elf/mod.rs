@@ -1,7 +1,7 @@
 //! Minimal 64-bit ELF loader with validation. Never trusts input.
 pub const MAGIC: [u8; 4] = [0x7f, b'E', b'L', b'F'];
 #[derive(Debug, PartialEq, Eq)] pub enum ElfError { TooSmall, BadMagic, BadClass, BadEndian, BadMachine, BadSegments }
-#[derive(Debug)] pub struct ElfInfo { pub entry: u64, pub segments: u16 }
+#[derive(Debug, PartialEq, Eq)] pub struct ElfInfo { pub entry: u64, pub segments: u16 }
 pub fn load(data: &[u8]) -> Result<ElfInfo, ElfError> {
     if data.len() < 64 { return Err(ElfError::TooSmall); }
     if data[0..4] != MAGIC { return Err(ElfError::BadMagic); }

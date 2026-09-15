@@ -7,7 +7,16 @@ impl<T: Copy, const N: usize> SpscRing<T, N> {
     pub fn push(&mut self, v: T) -> Result<(), T> {
         let h = self.head.load(Ordering::Acquire); let t = self.tail.load(Ordering::Acquire);
         if h.wrapping_sub(t) >= N {
-            match self.policy { OverflowPolicy::DropNew => return Err(v), OverflowPolicy::OverwriteOld => { self.buf[t % N] = Some(v); self.tail.store(t.wrapping_add(1), Ordering::Release); return Ok(()); } OverflowPolicy::Backpressure => return Err(v), }
+            match self.policy {
+                OverflowPolicy::DropNew => return Err(v),
+                OverflowPolicy::OverwriteOld => {
+                    self.tail.store(t.wrapping_add(1), Ordering::Release);
+                    self.buf[h % N] = Some(v);
+                    self.head.store(h.wrapping_add(1), Ordering::Release);
+                    return Ok(());
+                }
+                OverflowPolicy::Backpressure => return Err(v),
+            }
         }
         self.buf[h % N] = Some(v); self.head.store(h.wrapping_add(1), Ordering::Release); Ok(())
     }

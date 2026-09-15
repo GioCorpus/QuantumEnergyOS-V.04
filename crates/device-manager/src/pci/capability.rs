@@ -169,6 +169,34 @@ impl MsixInfo {
     }
 }
 
+/// A configured MSI / MSI-X interrupt vector.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MsiVector {
+    /// Vector index (0..N).
+    pub index: u16,
+    /// Target destination core / APIC ID.
+    pub destination_apic_id: u32,
+    /// Message address (32-bit or 64-bit MMIO/APIC address).
+    pub address: u64,
+    /// Message data (interrupt vector number and delivery mode).
+    pub data: u32,
+    /// Masked status.
+    pub masked: bool,
+}
+
+impl MsiVector {
+    /// Constructs an unmasked MSI vector.
+    pub const fn new(index: u16, destination_apic_id: u32, address: u64, data: u32) -> Self {
+        Self {
+            index,
+            destination_apic_id,
+            address,
+            data,
+            masked: false,
+        }
+    }
+}
+
 /// PCI Express capability contents (slot and link information).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PcieCapability {

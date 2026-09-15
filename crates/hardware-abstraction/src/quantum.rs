@@ -58,12 +58,13 @@ pub struct QuantumHardware {
 
 impl QuantumHardware {
     pub fn new(info: DeviceInfo, quantum_info: QuantumDeviceInfo) -> Self {
+        let enabled = quantum_info.is_simulator || quantum_info.backend_type != QuantumBackendType::Physical;
         Self {
             info,
             quantum_info,
             health: QuantumDeviceHealth::default(),
             state: crate::device::DeviceState::Uninitialized,
-            enabled: quantum_info.is_simulator || quantum_info.backend_type != QuantumBackendType::Physical,
+            enabled,
         }
     }
 

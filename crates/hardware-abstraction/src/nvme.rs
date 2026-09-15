@@ -92,6 +92,11 @@ impl NvmeDevice {
         self.health.percentage_used >= 90
             || self.health.available_spare_percent <= self.health.available_spare_threshold
     }
+
+    /// Check if the device is in Ready state.
+    pub fn is_ready(&self) -> bool {
+        self.state == crate::device::DeviceState::Ready
+    }
 }
 
 impl HardwareDevice for NvmeDevice {
@@ -130,7 +135,7 @@ mod tests {
             vendor: "TestVendor".to_string(),
             model: "NVMe5000".to_string(),
             serial_number: Some("S123456".to_string()),
-            firmware_revision: Some("1.0".to_string()),
+            firmware_version: Some("1.0".to_string()),
         };
 
         let nvme_info = NvmeInfo {

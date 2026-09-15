@@ -13,7 +13,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::error::{PciError, PciResult};
+use crate::error::PciResult;
 
 use super::address::PciAddress;
 
@@ -241,6 +241,38 @@ pub trait PciConfigReadExt: PciConfigBackend {
     /// Writes a 32-bit dword.
     fn write_u32(&mut self, addr: PciAddress, offset: u16, value: u32) -> PciResult<()> {
         self.write(addr, offset, ConfigWidth::U32, value)
+    }
+}
+
+impl<T: PciConfigBackend + ?Sized> PciConfigBackend for &mut T {
+    fn label(&self) -> &'static str {
+        (**self).label()
+    }
+
+    fn source(&self) -> BackendSource {
+        (**self).source()
+    }
+
+    fn read(&mut self, addr: PciAddress, offset: u16, width: ConfigWidth) -> PciResult<u32> {
+        (**self).read(addr, offset, width)
+    }
+
+    fn write(
+        &mut self,
+        addr: PciAddress,
+        offset: u16,
+        width: ConfigWidth,
+        value: u32,
+    ) -> PciResult<()> {
+        (**self).write(addr, offset, width, value)
+    }
+
+    fn supports_bar_sizing(&self) -> bool {
+        (**self).supports_bar_sizing()
+    }
+
+    fn iommu_enforced(&self) -> bool {
+        (**self).iommu_enforced()
     }
 }
 

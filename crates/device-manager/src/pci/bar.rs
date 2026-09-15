@@ -119,10 +119,10 @@ pub mod decode {
 
     /// Memory-space indicator bit (`0` means memory BAR).
     pub const MEMORY_INDICATOR: u32 = 1 << 0;
-    /// Memory type field mask (bits 1..3).
-    pub const MEMORY_TYPE_MASK: u32 = 0b111 << 1;
+    /// Memory type field mask (bits 1..2).
+    pub const MEMORY_TYPE_MASK: u32 = 0b11 << 1;
     /// Type field value selecting a 64-bit BAR.
-    pub const MEMORY_TYPE_64BIT: u32 = 0b100 << 1;
+    pub const MEMORY_TYPE_64BIT: u32 = 0b10 << 1;
     /// Prefetchable bit (bit 3).
     pub const PREFETCHABLE: u32 = 1 << 3;
     /// Address mask for a 32-bit memory BAR (low four bits are attributes).
@@ -173,18 +173,15 @@ pub mod decode {
     /// Returns `0` when the slot is not implemented: every bit the function does
     /// not implement reads back as `0` after writing all ones.
     pub fn size_from_mask(mask_low: u32, mask_high: Option<u32>) -> u64 {
-        if mask_low == 0 {
-            return 0;
-        }
-        let low = u64::from(!mask_low & SIZING_MASK_LOW).wrapping_add(1);
-        if low != 0 {
-            return low & 0xFFFF_FFFF;
+        let unmasked_low = mask_low & SIZING_MASK_LOW;
+        if unmasked_low != 0 {
+            return u64::from(!unmasked_low).wrapping_add(1) & 0xFFFF_FFFF;
         }
         // 64-bit BAR whose low half is fully implemented: the size lives in the
         // upper dword (the standard probe yields zero below 4 GiB).
         match mask_high {
-            Some(mask) => u64::from(!mask).wrapping_add(1) << 32,
-            None => 0,
+            Some(mask) if mask != 0 => u64::from(!mask).wrapping_add(1) << 32,
+            _ => 0,
         }
     }
 }
@@ -195,11 +192,17 @@ pub mod decode {
 /// that out-of-range or misaligned accesses are errors instead of silent
 /// corruption.
 pub fn check_mmio_access(size: usize, offset: usize, width: usize) -> PciResult<()> {
-    if width == 0 || offset % width != 0 {
+    if width == 0 {
         return Err(PciError::MmioMisaligned { offset, width });
     }
     match offset.checked_add(width) {
-        Some(end) if end <= size => Ok(()),
+        Some(end) if end <= size => {
+            if !offset.is_multiple_of(width) {
+                Err(PciError::MmioMisaligned { offset, width })
+            } else {
+                Ok(())
+            }
+        }
         _ => Err(PciError::MmioOutOfRange {
             offset,
             width,
@@ -526,7 +529,7 @@ mod tests {
 
     #[test]
     fn decodes_a_32bit_memory_bar() {
-        let bar = decode::from_raw(0, 0xF000_000C, None);
+        let bar = decode::from_raw(0, 0xF000_0008, None);
         assert_eq!(bar.kind, BarKind::Memory32);
         assert_eq!(bar.base, 0xF000_0000);
         assert!(bar.prefetchable);
