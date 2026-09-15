@@ -446,6 +446,16 @@ name = "qeos-kernel"
 version = "1.0.0"
 
 [[package]]
+name = "qeos-qpu"
+version = "0.4.3"
+dependencies = [
+ "quantum-hal",
+ "quantum-runtime",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "quantum-hal"
 version = "0.1.0"
 dependencies = [
@@ -460,7 +470,7 @@ dependencies = [
 
 [[package]]
 name = "quantum-runtime"
-version = "0.1.0"
+version = "0.4.3"
 dependencies = [
  "rand",
  "serde",
