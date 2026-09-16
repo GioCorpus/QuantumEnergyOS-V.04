@@ -69,13 +69,13 @@ pub enum HealthStatus {
 /// ```
 pub trait QuantumService {
     /// Initialize the service and prepare resources for startup
-    fn initialize(&mut self) -> Result<(), ServiceError>;
+    fn initialize(&mut self) -> std::result::Result<(), ServiceError>;
 
     /// Start the service and begin operation
-    fn start(&mut self) -> Result<(), ServiceError>;
+    fn start(&mut self) -> std::result::Result<(), ServiceError>;
 
     /// Stop the service and clean up resources
-    fn stop(&mut self) -> Result<(), ServiceError>;
+    fn stop(&mut self) -> std::result::Result<(), ServiceError>;
 
     /// Get the current operational status of the service
     fn status(&self) -> ServiceStatus;

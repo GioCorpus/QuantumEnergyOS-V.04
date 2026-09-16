@@ -15,6 +15,7 @@ members = [
    "crates/hardware-abstraction",
    "crates/device-manager",
    "crates/qeos-qpu",
+   "crates/qeos-gpu-compute",
 ]
 resolver = "2"
 
@@ -64,6 +65,7 @@ metrics-exporter-prometheus = "0.12"
 quantum-runtime = { path = "crates/quantum-runtime" }
 quantum-hal = { path = "crates/quantum-hal" }
 qeos-qpu = { path = "crates/qeos-qpu" }
+qeos-gpu-compute = { path = "crates/qeos-gpu-compute" }
 # DEBT(PHASE-4.1): see the workspace member list above — crate not present yet.
 # quantum-service = { path = "crates/quantum-service" }
 system-core = { path = "crates/system-core" }

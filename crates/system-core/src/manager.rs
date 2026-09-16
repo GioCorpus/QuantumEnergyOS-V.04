@@ -3,7 +3,6 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
-use crate::error::ServiceError;
 use crate::service::{HealthStatus, QuantumService, ServiceStatus};
 use crate::Result;
 
@@ -270,6 +269,9 @@ impl ServiceManager {
     /// Check if all services are healthy
     pub async fn all_healthy(&self) -> bool {
         let services = self.services.read().await;
+        if services.is_empty() {
+            return false;
+        }
         for handle in services.values() {
             let service = handle.read().await;
             if service.health() != HealthStatus::Healthy {
@@ -352,6 +354,7 @@ impl SystemHealthReport {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::error::ServiceError;
     use crate::service::{HealthStatus, ServiceStatus};
 
     /// Mock service for testing
@@ -373,18 +376,18 @@ mod tests {
     }
 
     impl QuantumService for MockService {
-        fn initialize(&mut self) -> Result<(), ServiceError> {
+        fn initialize(&mut self) -> std::result::Result<(), ServiceError> {
             self.status = ServiceStatus::Stopped;
             self.health = HealthStatus::Healthy;
             Ok(())
         }
 
-        fn start(&mut self) -> Result<(), ServiceError> {
+        fn start(&mut self) -> std::result::Result<(), ServiceError> {
             self.status = ServiceStatus::Running;
             Ok(())
         }
 
-        fn stop(&mut self) -> Result<(), ServiceError> {
+        fn stop(&mut self) -> std::result::Result<(), ServiceError> {
             self.status = ServiceStatus::Stopped;
             Ok(())
         }

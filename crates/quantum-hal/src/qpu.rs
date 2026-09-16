@@ -186,8 +186,13 @@ impl QuantumDevice for ExperimentalQpuDevice {
                 "call initialize() before calibrate()".to_string(),
             ));
         }
-        let adapter = self.adapters_mut()?;
-        adapter.calibrate()
+        let health = {
+            let adapter = self.adapters_mut()?;
+            adapter.calibrate()?;
+            adapter.health()
+        };
+        self.health = health;
+        Ok(())
     }
 
     fn reset(&mut self) -> Result<()> {

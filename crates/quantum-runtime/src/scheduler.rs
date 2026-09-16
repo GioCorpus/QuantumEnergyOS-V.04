@@ -324,7 +324,7 @@ fn priority_rank(p: &JobPriority) -> u8 {
 fn is_terminal(status: &JobStatus) -> bool {
     matches!(
         status,
-        JobStatus::Completed | JobStatus::Failed | JobStatus::Cancelled | JobStatus::Unsupported
+        JobStatus::Completed | JobStatus::Failed | JobStatus::Cancelled | JobStatus::Timeout
     )
 }
 

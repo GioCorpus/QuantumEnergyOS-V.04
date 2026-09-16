@@ -1,7 +1,7 @@
 use argon2::{
     password_hash::{
         rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+        PasswordHash as ArgonPasswordHash, PasswordHasher, PasswordVerifier, SaltString,
     },
     Argon2,
 };
@@ -38,7 +38,7 @@ impl Default for AuthConfig {
 
 /// A hashed password with its algorithm metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PasswordHash {
+pub struct StoredPasswordHash {
     pub hash: String,
     pub algorithm: String,
 }
@@ -69,7 +69,7 @@ impl AuthService {
     }
 
     /// Hash a password using Argon2id.
-    pub fn hash_password(&self, password: &str) -> Result<PasswordHash> {
+    pub fn hash_password(&self, password: &str) -> Result<StoredPasswordHash> {
         self.validate_password(password)?;
 
         let salt = SaltString::generate(&mut OsRng);
@@ -78,7 +78,7 @@ impl AuthService {
             .hash_password(password.as_bytes(), &salt)
             .map_err(|e| IdentityError::PasswordHashingFailed(e.to_string()))?;
 
-        Ok(PasswordHash {
+        Ok(StoredPasswordHash {
             hash: hash.to_string(),
             algorithm: "Argon2id".to_string(),
         })
@@ -86,7 +86,7 @@ impl AuthService {
 
     /// Verify a password against a stored hash.
     pub fn verify_password(&self, password: &str, stored_hash: &str) -> Result<bool> {
-        let parsed_hash = PasswordHash::new(stored_hash)
+        let parsed_hash = ArgonPasswordHash::new(stored_hash)
             .map_err(|e| IdentityError::PasswordHashingFailed(e.to_string()))?;
 
         match self.argon2.verify_password(password.as_bytes(), &parsed_hash) {
@@ -117,7 +117,7 @@ impl AuthService {
 
     /// Check if a password hash needs rehashing (e.g., parameters changed).
     pub fn needs_rehash(&self, stored_hash: &str) -> Result<bool> {
-        let parsed_hash = PasswordHash::new(stored_hash)
+        let parsed_hash = ArgonPasswordHash::new(stored_hash)
             .map_err(|e| IdentityError::PasswordHashingFailed(e.to_string()))?;
 
         Ok(parsed_hash.hash.is_none() || parsed_hash.salt.is_none())

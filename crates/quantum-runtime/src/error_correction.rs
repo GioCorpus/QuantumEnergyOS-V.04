@@ -106,6 +106,40 @@ impl LogicalQubit {
     }
 }
 
+/// Phase 4.8 error-correction contract (spec 4.8.1).
+pub trait ErrorCorrectionCode: Send + Sync {
+    fn name(&self) -> &str;
+    fn encode_bit(&self, bit: u8) -> LogicalQubit;
+    fn syndrome_of(&self, q: &LogicalQubit) -> Syndrome;
+    fn logical_error_rate(&self, physical_rate: f64) -> f64;
+}
+
+/// Repetition code (MODEL): logical error approx p^ceil(n/2).
+#[derive(Debug, Clone, Copy)]
+pub struct RepetitionCode {
+    pub replicas: usize,
+}
+impl RepetitionCode {
+    pub fn new(replicas: usize) -> Self {
+        Self { replicas: replicas.max(1) }
+    }
+}
+impl ErrorCorrectionCode for RepetitionCode {
+    fn name(&self) -> &str {
+        "repetition-code"
+    }
+    fn encode_bit(&self, bit: u8) -> LogicalQubit {
+        LogicalQubit::encode(bit, self.replicas, CorrectionStrategy::RepetitionCode)
+    }
+    fn syndrome_of(&self, q: &LogicalQubit) -> Syndrome {
+        q.syndrome()
+    }
+    fn logical_error_rate(&self, p: f64) -> f64 {
+        let t = (self.replicas + 1) / 2;
+        p.powi(t as i32)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

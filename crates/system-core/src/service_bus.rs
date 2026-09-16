@@ -1,6 +1,6 @@
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -96,7 +96,7 @@ impl Message {
     }
 
     /// Validate the message structure and protocol version
-    pub fn validate(&self) -> Result<(), IpcError> {
+    pub fn validate(&self) -> std::result::Result<(), IpcError> {
         if self.version != IPC_PROTOCOL_VERSION {
             return Err(IpcError::InvalidVersion(self.version));
         }
@@ -117,13 +117,13 @@ impl Message {
     }
 
     /// Serialize the message to JSON
-    pub fn to_json(&self) -> Result<String, IpcError> {
+    pub fn to_json(&self) -> std::result::Result<String, IpcError> {
         serde_json::to_string(self)
             .map_err(|e| IpcError::SerializationError(format!("message serialization failed: {}", e)))
     }
 
     /// Deserialize a message from JSON
-    pub fn from_json(json: &str) -> Result<Self, IpcError> {
+    pub fn from_json(json: &str) -> std::result::Result<Self, IpcError> {
         serde_json::from_str(json)
             .map_err(|e| IpcError::DeserializationError(format!("message deserialization failed: {}", e)))
     }
@@ -170,7 +170,7 @@ impl ServiceInfo {
 }
 
 /// Message handler function type
-pub type MessageHandler = Arc<dyn Fn(Message) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Message, IpcError>> + Send>> + Send + Sync>;
+pub type MessageHandler = Arc<dyn Fn(Message) -> std::pin::Pin<Box<dyn std::future::Future<Output = std::result::Result<Message, IpcError>> + Send>> + Send + Sync>;
 
 /// Service registry for IPC service discovery
 ///
@@ -233,7 +233,7 @@ impl ServiceRegistry {
     }
 
     /// Route a message to the appropriate handler
-    pub async fn route(&self, message: Message) -> Result<Message, IpcError> {
+    pub async fn route(&self, message: Message) -> std::result::Result<Message, IpcError> {
         // Validate message
         message.validate()?;
 
@@ -326,6 +326,7 @@ impl Default for MessageBuffer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn test_message_creation() {

@@ -65,8 +65,16 @@ pub enum JobStatus {
     Failed,
     /// Job was cancelled
     Cancelled,
-    /// Backend does not support this job
-    Unsupported,
+    /// Created (spec 4.6.3 state; entry state for new jobs)
+    Created,
+    /// Job is compiling/lowering IR
+    Compiling,
+    /// Job is measuring
+    Measuring,
+    /// Job is post-processing results
+    PostProcessing,
+    /// Job exceeded its timeout
+    Timeout,
 }
 
 impl std::fmt::Display for JobStatus {
@@ -78,7 +86,11 @@ impl std::fmt::Display for JobStatus {
             Self::Completed => write!(f, "Completed"),
             Self::Failed => write!(f, "Failed"),
             Self::Cancelled => write!(f, "Cancelled"),
-            Self::Unsupported => write!(f, "Unsupported"),
+            Self::Created => write!(f, "Created"),
+            Self::Compiling => write!(f, "Compiling"),
+            Self::Measuring => write!(f, "Measuring"),
+            Self::PostProcessing => write!(f, "PostProcessing"),
+            Self::Timeout => write!(f, "Timeout"),
         }
     }
 }
@@ -261,7 +273,7 @@ impl QuantumJob {
             JobStatus::Completed
                 | JobStatus::Failed
                 | JobStatus::Cancelled
-                | JobStatus::Unsupported
+                | JobStatus::Timeout
         )
     }
 

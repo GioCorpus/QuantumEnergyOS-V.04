@@ -60,7 +60,7 @@ impl Session {
         if !self.is_active {
             return true;
         }
-        current_timestamp() > self.expires_at
+        current_timestamp() >= self.expires_at
     }
 
     /// Check if the session is valid (active and not expired).

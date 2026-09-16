@@ -127,6 +127,15 @@ pub enum ServiceError {
 
     #[error("service health check failed")]
     HealthCheckFailed,
+
+    #[error("authentication failed")]
+    AuthenticationFailed,
+
+    #[error("authorization failed: {0}")]
+    AuthorizationFailed(String),
+
+    #[error("rate limit exceeded")]
+    RateLimited,
 }
 
 /// IPC-specific error type
@@ -220,6 +229,15 @@ impl From<ServiceError> for SystemCoreError {
             ServiceError::StopFailed => SystemCoreError::ServiceShutdownFailed("unknown".to_string()),
             ServiceError::HealthCheckFailed => {
                 SystemCoreError::ServiceDegraded("health check failed".to_string())
+            }
+            ServiceError::AuthenticationFailed => {
+                SystemCoreError::AuthenticationFailed("authentication failed".to_string())
+            }
+            ServiceError::AuthorizationFailed(msg) => {
+                SystemCoreError::AuthorizationFailed(msg)
+            }
+            ServiceError::RateLimited => {
+                SystemCoreError::IpcTimeout("rate limit exceeded".to_string())
             }
         }
     }

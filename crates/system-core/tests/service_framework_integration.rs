@@ -4,7 +4,7 @@
 use system_core::{
     AuthService, BrowserService, DashboardService, DeviceService, EnergyService,
     PolicyService, QuantumRuntimeService, SchedulerService, TelemetryService,
-    ServiceManager, HealthStatus, ServiceStatus, QuantumService,
+    ServiceManager, HealthStatus, ServiceStatus,
 };
 
 #[tokio::test]

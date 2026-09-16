@@ -7,7 +7,7 @@ pub mod rbac;
 pub mod sessions;
 
 pub use audit::{AuditEvent, AuditLogger, AuditSeverity};
-pub use auth::{AuthService, AuthConfig, PasswordHash};
+pub use auth::{AuthService, AuthConfig, StoredPasswordHash};
 pub use error::{IdentityError, Result};
 pub use jwks::{Jwks, JwksManager, JsonWebKey};
 pub use jwt::{JwtClaims, JwtConfig, JwtManager, TokenPair};

@@ -8,17 +8,15 @@ use tracing::{debug, warn};
 use crate::error::{IpcError, ServiceError, SystemCoreError};
 use crate::service_bus::{Message, ServiceInfo, ServiceRegistry};
 
-use serde_json::json;
-
 pub trait ServiceAccessPolicy: Send + Sync {
-    fn authorize(&self, service: &str, user: Option<&str>) -> Result<(), ServiceError>;
+    fn authorize(&self, service: &str, user: Option<&str>) -> std::result::Result<(), ServiceError>;
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct AllowAllPolicy;
 
 impl ServiceAccessPolicy for AllowAllPolicy {
-    fn authorize(&self, _service: &str, _user: Option<&str>) -> Result<(), ServiceError> {
+    fn authorize(&self, _service: &str, _user: Option<&str>) -> std::result::Result<(), ServiceError> {
         Ok(())
     }
 }
@@ -26,7 +24,7 @@ impl ServiceAccessPolicy for AllowAllPolicy {
 pub struct RequireAuthPolicy;
 
 impl ServiceAccessPolicy for RequireAuthPolicy {
-    fn authorize(&self, service: &str, user: Option<&str>) -> Result<(), ServiceError> {
+    fn authorize(&self, service: &str, user: Option<&str>) -> std::result::Result<(), ServiceError> {
         match user {
             Some(_) => Ok(()),
             None => {
@@ -52,7 +50,7 @@ impl ServiceRateLimiter {
         }
     }
 
-    pub async fn check(&self, service: &str) -> Result<(), ServiceError> {
+    pub async fn check(&self, service: &str) -> std::result::Result<(), ServiceError> {
         let now = Instant::now();
         let mut counts = self.counts.write().await;
         let (count, start) = counts.entry(service.to_string()).or_insert((0, now));
@@ -92,7 +90,7 @@ impl ServiceGateway {
         }
     }
 
-    pub async fn discover(&self, name: &str) -> Result<ServiceInfo, ServiceError> {
+    pub async fn discover(&self, name: &str) -> std::result::Result<ServiceInfo, ServiceError> {
         self.registry.get_info(name).await.map_err(|e| match e {
             SystemCoreError::IpcServiceNotRegistered(_) => ServiceError::AuthenticationFailed,
             SystemCoreError::ServiceNotFound(_) => ServiceError::AuthenticationFailed,
@@ -100,7 +98,7 @@ impl ServiceGateway {
         })
     }
 
-    pub async fn list_services(&self) -> Result<Vec<String>, ServiceError> {
+    pub async fn list_services(&self) -> std::result::Result<Vec<String>, ServiceError> {
         self.registry.list_services().await.map_err(|_| ServiceError::StartFailed)
     }
 
@@ -108,7 +106,7 @@ impl ServiceGateway {
         &self,
         message: Message,
         user: Option<&str>,
-    ) -> Result<Message, ServiceError> {
+    ) -> std::result::Result<Message, ServiceError> {
         self.policy.authorize(&message.service, user)?;
         self.limiter.check(&message.service).await?;
 
@@ -125,6 +123,7 @@ impl ServiceGateway {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn test_allow_all_policy_always_authorizes() {
@@ -205,7 +204,7 @@ mod tests {
     async fn test_service_gateway_enforces_rate_limit() {
         let registry = ServiceRegistry::new();
         let gateway = ServiceGateway::new(
-            registry,
+            registry.clone(),
             Arc::new(AllowAllPolicy),
             ServiceRateLimiter::new(1, 60),
         );

@@ -1,0 +1,16 @@
+[package]
+name = "qeos-gpu-compute"
+version = "0.4.4"
+edition = "2021"
+description = "QEOS Phase 4.5 GPU compute abstraction: CPU reference + mock + vendor-probe backends"
+license = "MIT"
+
+[lib]
+name = "qeos_gpu_compute"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+quantum-runtime = { workspace = true }

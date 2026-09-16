@@ -1,6 +1,6 @@
-use crate::service::{HealthStatus, QuantumService, ServiceStatus};
 use crate::error::ServiceError;
-use tracing::{info, debug, warn};
+use crate::service::{HealthStatus, QuantumService, ServiceStatus};
+use tracing::{info, warn};
 
 /// Authentication and credential management service.
 ///
