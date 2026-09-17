@@ -2,9 +2,9 @@
 // Located in crates/system-core/tests/
 
 use system_core::{
-    AuthService, BrowserService, DashboardService, DeviceService, EnergyService,
-    PolicyService, QuantumRuntimeService, SchedulerService, TelemetryService,
-    ServiceManager, HealthStatus, ServiceStatus,
+    AuthService, BrowserService, DashboardService, DeviceService, EnergyService, HealthStatus,
+    PolicyService, QuantumRuntimeService, SchedulerService, ServiceManager, ServiceStatus,
+    TelemetryService,
 };
 
 #[tokio::test]
@@ -42,9 +42,18 @@ async fn test_multiple_services_orchestration() {
     let manager = ServiceManager::new();
 
     // Register multiple services
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
-    manager.register("policy", Box::new(PolicyService::new())).await.unwrap();
-    manager.register("telemetry", Box::new(TelemetryService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("policy", Box::new(PolicyService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("telemetry", Box::new(TelemetryService::new()))
+        .await
+        .unwrap();
 
     assert_eq!(manager.service_count().await, 3);
 
@@ -82,9 +91,18 @@ async fn test_quantum_system_services() {
     let manager = ServiceManager::new();
 
     // Register quantum subsystem services
-    manager.register("quantum", Box::new(QuantumRuntimeService::new())).await.unwrap();
-    manager.register("scheduler", Box::new(SchedulerService::new())).await.unwrap();
-    manager.register("device", Box::new(DeviceService::new())).await.unwrap();
+    manager
+        .register("quantum", Box::new(QuantumRuntimeService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("scheduler", Box::new(SchedulerService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("device", Box::new(DeviceService::new()))
+        .await
+        .unwrap();
 
     manager.initialize().await.unwrap();
     manager.start_all().await.unwrap();
@@ -103,9 +121,18 @@ async fn test_observability_services() {
     let manager = ServiceManager::new();
 
     // Register observability services
-    manager.register("telemetry", Box::new(TelemetryService::new())).await.unwrap();
-    manager.register("energy", Box::new(EnergyService::new())).await.unwrap();
-    manager.register("dashboard", Box::new(DashboardService::new())).await.unwrap();
+    manager
+        .register("telemetry", Box::new(TelemetryService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("energy", Box::new(EnergyService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("dashboard", Box::new(DashboardService::new()))
+        .await
+        .unwrap();
 
     manager.initialize().await.unwrap();
     manager.start_all().await.unwrap();
@@ -124,15 +151,42 @@ async fn test_full_system_startup() {
     let manager = ServiceManager::new();
 
     // Register all major services (simulating full system)
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
-    manager.register("policy", Box::new(PolicyService::new())).await.unwrap();
-    manager.register("telemetry", Box::new(TelemetryService::new())).await.unwrap();
-    manager.register("energy", Box::new(EnergyService::new())).await.unwrap();
-    manager.register("quantum", Box::new(QuantumRuntimeService::new())).await.unwrap();
-    manager.register("scheduler", Box::new(SchedulerService::new())).await.unwrap();
-    manager.register("device", Box::new(DeviceService::new())).await.unwrap();
-    manager.register("browser", Box::new(BrowserService::new())).await.unwrap();
-    manager.register("dashboard", Box::new(DashboardService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("policy", Box::new(PolicyService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("telemetry", Box::new(TelemetryService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("energy", Box::new(EnergyService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("quantum", Box::new(QuantumRuntimeService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("scheduler", Box::new(SchedulerService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("device", Box::new(DeviceService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("browser", Box::new(BrowserService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("dashboard", Box::new(DashboardService::new()))
+        .await
+        .unwrap();
 
     assert_eq!(manager.service_count().await, 9);
 
@@ -155,7 +209,17 @@ async fn test_full_system_startup() {
     assert_eq!(services.len(), 9);
 
     // Verify each service status
-    for service_name in &["auth", "policy", "telemetry", "energy", "quantum", "scheduler", "device", "browser", "dashboard"] {
+    for service_name in &[
+        "auth",
+        "policy",
+        "telemetry",
+        "energy",
+        "quantum",
+        "scheduler",
+        "device",
+        "browser",
+        "dashboard",
+    ] {
         let status = manager.status(service_name).await.unwrap();
         assert_eq!(status, ServiceStatus::Running);
         let health = manager.health(service_name).await.unwrap();
@@ -166,7 +230,17 @@ async fn test_full_system_startup() {
     manager.stop_all().await.unwrap();
 
     // Verify all stopped
-    for service_name in &["auth", "policy", "telemetry", "energy", "quantum", "scheduler", "device", "browser", "dashboard"] {
+    for service_name in &[
+        "auth",
+        "policy",
+        "telemetry",
+        "energy",
+        "quantum",
+        "scheduler",
+        "device",
+        "browser",
+        "dashboard",
+    ] {
         let status = manager.status(service_name).await.unwrap();
         assert_eq!(status, ServiceStatus::Stopped);
     }
@@ -177,11 +251,17 @@ async fn test_service_replacement() {
     let manager = ServiceManager::new();
 
     // Register initial service
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
     assert_eq!(manager.service_count().await, 1);
 
     // Replace with new instance
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
     assert_eq!(manager.service_count().await, 1); // Should still be 1
 
     manager.unregister("auth").await.unwrap();
@@ -193,7 +273,10 @@ async fn test_service_error_handling() {
     let manager = ServiceManager::new();
 
     // Try to start without initialization
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
     let result = manager.start_all().await;
     assert!(result.is_err());
 }
@@ -203,9 +286,18 @@ async fn test_health_report_generation() {
     let manager = ServiceManager::new();
 
     // Register multiple services
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
-    manager.register("policy", Box::new(PolicyService::new())).await.unwrap();
-    manager.register("quantum", Box::new(QuantumRuntimeService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("policy", Box::new(PolicyService::new()))
+        .await
+        .unwrap();
+    manager
+        .register("quantum", Box::new(QuantumRuntimeService::new()))
+        .await
+        .unwrap();
 
     manager.initialize().await.unwrap();
 
@@ -241,13 +333,22 @@ async fn test_service_count_tracking() {
 
     assert_eq!(manager.service_count().await, 0);
 
-    manager.register("service1", Box::new(AuthService::new())).await.unwrap();
+    manager
+        .register("service1", Box::new(AuthService::new()))
+        .await
+        .unwrap();
     assert_eq!(manager.service_count().await, 1);
 
-    manager.register("service2", Box::new(PolicyService::new())).await.unwrap();
+    manager
+        .register("service2", Box::new(PolicyService::new()))
+        .await
+        .unwrap();
     assert_eq!(manager.service_count().await, 2);
 
-    manager.register("service3", Box::new(BrowserService::new())).await.unwrap();
+    manager
+        .register("service3", Box::new(BrowserService::new()))
+        .await
+        .unwrap();
     assert_eq!(manager.service_count().await, 3);
 
     manager.unregister("service1").await.unwrap();
@@ -267,7 +368,10 @@ async fn test_service_all_healthy_flag() {
     // Empty system is not healthy
     assert!(!manager.all_healthy().await);
 
-    manager.register("auth", Box::new(AuthService::new())).await.unwrap();
+    manager
+        .register("auth", Box::new(AuthService::new()))
+        .await
+        .unwrap();
     manager.initialize().await.unwrap();
     manager.start_all().await.unwrap();
 
@@ -291,7 +395,9 @@ async fn test_concurrent_service_operations() {
         let mgr = manager.clone();
         let handle = tokio::spawn(async move {
             let service_name = format!("service-{}", i);
-            mgr.register(&service_name, Box::new(AuthService::new())).await.unwrap();
+            mgr.register(&service_name, Box::new(AuthService::new()))
+                .await
+                .unwrap();
         });
         handles.push(handle);
     }

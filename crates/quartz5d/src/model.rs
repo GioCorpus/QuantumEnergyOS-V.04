@@ -105,8 +105,16 @@ impl Quartz5DModel {
         if self.coordinates.is_empty() {
             return None;
         }
-        let min = self.coordinates.iter().map(|c| c.state).fold(f64::INFINITY, f64::min);
-        let max = self.coordinates.iter().map(|c| c.state).fold(f64::NEG_INFINITY, f64::max);
+        let min = self
+            .coordinates
+            .iter()
+            .map(|c| c.state)
+            .fold(f64::INFINITY, f64::min);
+        let max = self
+            .coordinates
+            .iter()
+            .map(|c| c.state)
+            .fold(f64::NEG_INFINITY, f64::max);
         Some((min, max))
     }
 

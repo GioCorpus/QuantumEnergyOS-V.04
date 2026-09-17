@@ -142,7 +142,13 @@ pub mod decode {
             return PciBar::new(index, BarKind::Unimplemented, 0, 0, false);
         }
         if raw & MEMORY_INDICATOR != 0 {
-            return PciBar::new(index, BarKind::IoPort, u64::from(raw & IO_BASE_MASK), 0, false);
+            return PciBar::new(
+                index,
+                BarKind::IoPort,
+                u64::from(raw & IO_BASE_MASK),
+                0,
+                false,
+            );
         }
         let prefetchable = raw & PREFETCHABLE != 0;
         if raw & MEMORY_TYPE_MASK == MEMORY_TYPE_64BIT {
@@ -622,7 +628,10 @@ mod tests {
     #[test]
     fn simulated_mapper_tracks_mappings_and_refuses_double_map() {
         let mut mapper = SimulatedMmioMapper::new();
-        assert_eq!(mapper.limit(), SimulatedMmioMapper::DEFAULT_MAX_REGION_BYTES);
+        assert_eq!(
+            mapper.limit(),
+            SimulatedMmioMapper::DEFAULT_MAX_REGION_BYTES
+        );
         assert!(mapper.is_simulated());
         let bar = PciBar::new(0, BarKind::Memory32, 0, 0x1000, false);
 

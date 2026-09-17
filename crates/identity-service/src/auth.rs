@@ -1,7 +1,7 @@
 use argon2::{
     password_hash::{
-        rand_core::OsRng,
-        PasswordHash as ArgonPasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+        rand_core::OsRng, PasswordHash as ArgonPasswordHash, PasswordHasher, PasswordVerifier,
+        SaltString,
     },
     Argon2,
 };
@@ -57,13 +57,11 @@ impl AuthService {
             config.parallelism,
             None,
         )
-        .map_err(|e| IdentityError::PasswordHashingFailed(format!("invalid Argon2 params: {}", e)))?;
+        .map_err(|e| {
+            IdentityError::PasswordHashingFailed(format!("invalid Argon2 params: {}", e))
+        })?;
 
-        let argon2 = Argon2::new(
-            argon2::Algorithm::Argon2id,
-            argon2::Version::V0x13,
-            params,
-        );
+        let argon2 = Argon2::new(argon2::Algorithm::Argon2id, argon2::Version::V0x13, params);
 
         Ok(Self { config, argon2 })
     }
@@ -89,7 +87,10 @@ impl AuthService {
         let parsed_hash = ArgonPasswordHash::new(stored_hash)
             .map_err(|e| IdentityError::PasswordHashingFailed(e.to_string()))?;
 
-        match self.argon2.verify_password(password.as_bytes(), &parsed_hash) {
+        match self
+            .argon2
+            .verify_password(password.as_bytes(), &parsed_hash)
+        {
             Ok(()) => Ok(true),
             Err(argon2::password_hash::Error::Password) => Ok(false),
             Err(e) => Err(IdentityError::PasswordHashingFailed(e.to_string())),
@@ -149,7 +150,9 @@ mod tests {
         let service = AuthService::new(AuthConfig::default()).unwrap();
         let hash = service.hash_password("secure_password_123").unwrap();
 
-        assert!(service.verify_password("secure_password_123", &hash.hash).unwrap());
+        assert!(service
+            .verify_password("secure_password_123", &hash.hash)
+            .unwrap());
     }
 
     #[test]
@@ -157,7 +160,9 @@ mod tests {
         let service = AuthService::new(AuthConfig::default()).unwrap();
         let hash = service.hash_password("secure_password_123").unwrap();
 
-        assert!(!service.verify_password("wrong_password", &hash.hash).unwrap());
+        assert!(!service
+            .verify_password("wrong_password", &hash.hash)
+            .unwrap());
     }
 
     #[test]
@@ -173,9 +178,12 @@ mod tests {
         let service = AuthService::new(AuthConfig {
             max_password_length: 20,
             ..Default::default()
-        }).unwrap();
+        })
+        .unwrap();
 
-        assert!(service.validate_password("this_password_is_way_too_long").is_err());
+        assert!(service
+            .validate_password("this_password_is_way_too_long")
+            .is_err());
     }
 
     #[test]

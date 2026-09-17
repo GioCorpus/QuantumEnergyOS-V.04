@@ -121,7 +121,9 @@ pub struct RepetitionCode {
 }
 impl RepetitionCode {
     pub fn new(replicas: usize) -> Self {
-        Self { replicas: replicas.max(1) }
+        Self {
+            replicas: replicas.max(1),
+        }
     }
 }
 impl ErrorCorrectionCode for RepetitionCode {

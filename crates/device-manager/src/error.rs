@@ -45,7 +45,9 @@ pub enum PciError {
     MalformedCapabilityList { addr: PciAddress, reason: String },
 
     /// Offset/width combination the backend cannot serve (misaligned access).
-    #[error("unsupported PCI configuration access at {addr}: offset={offset:#04x} width={width:?}")]
+    #[error(
+        "unsupported PCI configuration access at {addr}: offset={offset:#04x} width={width:?}"
+    )]
     UnsupportedAccess {
         addr: PciAddress,
         offset: u16,

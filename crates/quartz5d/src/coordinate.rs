@@ -28,7 +28,13 @@ impl Quartz5DCoordinate {
 
     /// Create a coordinate with zero state.
     pub fn at_position(x: i32, y: i32, z: i32, t: i64) -> Self {
-        Self { x, y, z, t, state: 0.0 }
+        Self {
+            x,
+            y,
+            z,
+            t,
+            state: 0.0,
+        }
     }
 
     /// Get the spatial distance from another coordinate (ignoring time and state).

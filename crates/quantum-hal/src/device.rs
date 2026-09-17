@@ -78,7 +78,9 @@ pub struct DeviceInfo {
 impl DeviceInfo {
     /// Check whether the device declares support for a gate name.
     pub fn supports_gate(&self, gate: &str) -> bool {
-        self.supported_gates.iter().any(|g| g.eq_ignore_ascii_case(gate))
+        self.supported_gates
+            .iter()
+            .any(|g| g.eq_ignore_ascii_case(gate))
     }
 }
 

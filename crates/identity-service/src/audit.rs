@@ -104,8 +104,7 @@ impl AuditLogger {
 
     /// Log a successful action.
     pub fn log_success(&mut self, actor: &str, action: &str, resource: &str) {
-        let event = AuditEvent::new(actor, action, resource)
-            .with_result(AuditResult::Success);
+        let event = AuditEvent::new(actor, action, resource).with_result(AuditResult::Success);
         self.log(event);
     }
 
@@ -133,10 +132,7 @@ impl AuditLogger {
 
     /// Get events for a specific actor.
     pub fn events_for_actor(&self, actor: &str) -> Vec<&AuditEvent> {
-        self.events
-            .iter()
-            .filter(|e| e.actor == actor)
-            .collect()
+        self.events.iter().filter(|e| e.actor == actor).collect()
     }
 
     /// Get events with a specific severity or higher.
@@ -239,8 +235,11 @@ mod tests {
         let mut logger = AuditLogger::new(100);
 
         logger.log(AuditEvent::new("user1", "login", "auth").with_severity(AuditSeverity::Info));
-        logger.log(AuditEvent::new("user2", "delete", "data").with_severity(AuditSeverity::Warning));
-        logger.log(AuditEvent::new("user3", "breach", "system").with_severity(AuditSeverity::Critical));
+        logger
+            .log(AuditEvent::new("user2", "delete", "data").with_severity(AuditSeverity::Warning));
+        logger.log(
+            AuditEvent::new("user3", "breach", "system").with_severity(AuditSeverity::Critical),
+        );
 
         let warnings = logger.events_with_severity(AuditSeverity::Warning);
         assert_eq!(warnings.len(), 2);

@@ -3,7 +3,10 @@
 //! For host development (`cargo run`) it simulates the deterministic boot
 //! sequence with explicit logging.
 
-use qeos_kernel::{boot::BootSequence, logging::{Logger, Level}};
+use qeos_kernel::{
+    boot::BootSequence,
+    logging::{Level, Logger},
+};
 
 fn main() {
     let logger = Logger::new(Level::Info);

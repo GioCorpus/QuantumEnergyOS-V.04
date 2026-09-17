@@ -99,21 +99,27 @@ pub fn run_majorana_experiment(
     })
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn test_ideal_majorana_no_errors() {
-        let res =
-            run_majorana_experiment(64, 11, &MajoranaSimConfig::default(), &RuntimeNoiseModel::ideal())
-                .unwrap();
+        let res = run_majorana_experiment(
+            64,
+            11,
+            &MajoranaSimConfig::default(),
+            &RuntimeNoiseModel::ideal(),
+        )
+        .unwrap();
         assert_eq!(res.logical_error_rate, 0.0);
         assert!(res.simulation_only);
     }
     #[test]
     fn test_majorana_reproducible() {
-        let cfg = MajoranaSimConfig { poisoning_probability: 0.2, ..Default::default() };
+        let cfg = MajoranaSimConfig {
+            poisoning_probability: 0.2,
+            ..Default::default()
+        };
         let noise = RuntimeNoiseModel::ideal();
         let a = run_majorana_experiment(128, 5, &cfg, &noise).unwrap();
         let b = run_majorana_experiment(128, 5, &cfg, &noise).unwrap();

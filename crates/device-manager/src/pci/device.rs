@@ -294,9 +294,7 @@ pub mod facts {
 
     /// True when a decoded capability with `id` is present.
     pub fn has_capability(capabilities: &[PciCapability], id: u8) -> bool {
-        capabilities
-            .iter()
-            .any(|capability| capability.id() == id)
+        capabilities.iter().any(|capability| capability.id() == id)
     }
 
     /// True when MSI or MSI-X is present.

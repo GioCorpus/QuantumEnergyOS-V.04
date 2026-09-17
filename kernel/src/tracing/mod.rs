@@ -12,12 +12,7 @@ pub struct TraceCtx {
 }
 
 impl TraceCtx {
-    pub fn new(
-        cpu_id: u32,
-        thread_id: u32,
-        process_id: u32,
-        ts_mono_ns: u64,
-    ) -> Self {
+    pub fn new(cpu_id: u32, thread_id: u32, process_id: u32, ts_mono_ns: u64) -> Self {
         Self {
             cpu_id,
             thread_id,

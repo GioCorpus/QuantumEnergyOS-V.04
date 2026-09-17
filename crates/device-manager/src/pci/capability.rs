@@ -300,7 +300,9 @@ mod tests {
     #[test]
     fn msi_control_decodes_vectors_and_flags() {
         // enable + 4 vectors (log2 = 2) + 64-bit address + per-vector masking
-        let control = msi_control::ENABLE | (2 << 1) | msi_control::ADDRESS_64BIT
+        let control = msi_control::ENABLE
+            | (2 << 1)
+            | msi_control::ADDRESS_64BIT
             | msi_control::PER_VECTOR_MASKING;
         let msi = MsiInfo::from_control(control);
         assert!(msi.enabled);
@@ -338,16 +340,19 @@ mod tests {
         assert!(other.to_string().contains("0x42"));
         assert!(!other.is_interrupt_capability());
 
-        assert_eq!(PciCapability::Pcie(PcieCapability {
-            version: 2,
-            device_port_type: 0,
-            slot_implemented: false,
-            hotplug_capable: false,
-            hotplug_surprise: false,
-            link_speed: LinkSpeed::Gen4,
-            link_width: 16,
-        })
-        .label(), "pcie");
+        assert_eq!(
+            PciCapability::Pcie(PcieCapability {
+                version: 2,
+                device_port_type: 0,
+                slot_implemented: false,
+                hotplug_capable: false,
+                hotplug_surprise: false,
+                link_speed: LinkSpeed::Gen4,
+                link_width: 16,
+            })
+            .label(),
+            "pcie"
+        );
         assert_eq!(PciCapability::AddressTranslation.label(), "ats");
     }
 }

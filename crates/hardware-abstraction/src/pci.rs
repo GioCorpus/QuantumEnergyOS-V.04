@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::device::{DeviceInfo, DeviceHealth, HardwareDevice};
+use crate::device::{DeviceHealth, DeviceInfo, HardwareDevice};
 use crate::error::HardwareError;
 
 /// PCI device information.

@@ -43,7 +43,10 @@ impl KernelState {
             KernelPhase::Shutdown,
         ];
         let cur = order.iter().position(|p| *p == self.phase).unwrap_or(0);
-        let nxt = order.iter().position(|p| *p == next).ok_or("unknown phase")?;
+        let nxt = order
+            .iter()
+            .position(|p| *p == next)
+            .ok_or("unknown phase")?;
         if nxt == cur + 1 {
             self.phase = next;
             Ok(())

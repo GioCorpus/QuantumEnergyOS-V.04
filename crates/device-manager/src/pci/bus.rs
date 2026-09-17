@@ -44,10 +44,7 @@ impl BusRange {
 
     /// Scan all 256 buses in the PCI domain.
     pub const fn all() -> Self {
-        Self {
-            start: 0,
-            end: 255,
-        }
+        Self { start: 0, end: 255 }
     }
 
     /// Scan an explicit range.
@@ -173,7 +170,11 @@ impl<B: PciConfigBackend> PciBus<B> {
     }
 
     /// Decodes all BARs for a device function according to its header layout.
-    fn decode_bars(&mut self, addr: PciAddress, header_type: PciHeaderType) -> PciResult<Vec<PciBar>> {
+    fn decode_bars(
+        &mut self,
+        addr: PciAddress,
+        header_type: PciHeaderType,
+    ) -> PciResult<Vec<PciBar>> {
         let bar_slots = header_type.bar_slots();
         let mut bars = Vec::new();
         let supports_sizing = self.backend.supports_bar_sizing();
@@ -215,7 +216,8 @@ impl<B: PciConfigBackend> PciBus<B> {
                     let high_offset = offset + 4;
                     self.backend.write_u32(addr, high_offset, 0xFFFF_FFFF)?;
                     let m_high = self.backend.read_u32(addr, high_offset)?;
-                    self.backend.write_u32(addr, high_offset, raw_high.unwrap_or(0))?;
+                    self.backend
+                        .write_u32(addr, high_offset, raw_high.unwrap_or(0))?;
                     Some(m_high)
                 } else {
                     None
@@ -245,7 +247,9 @@ impl<B: PciConfigBackend> PciBus<B> {
             if ptr < 0x40 {
                 return Err(PciError::MalformedCapabilityList {
                     addr,
-                    reason: format!("capability pointer 0x{ptr:02x} is below the 0x40 legacy header limit"),
+                    reason: format!(
+                        "capability pointer 0x{ptr:02x} is below the 0x40 legacy header limit"
+                    ),
                 });
             }
 
@@ -320,7 +324,9 @@ impl<B: PciConfigBackend> PciBus<B> {
                 }
                 ids::ADDRESS_TRANSLATION => PciCapability::AddressTranslation,
                 ids::HOT_PLUG => PciCapability::HotPlug,
-                ids::VENDOR_SPECIFIC => PciCapability::VendorSpecific { id: ids::VENDOR_SPECIFIC },
+                ids::VENDOR_SPECIFIC => PciCapability::VendorSpecific {
+                    id: ids::VENDOR_SPECIFIC,
+                },
                 other => PciCapability::Other {
                     id: other,
                     offset: ptr as u16,
@@ -371,7 +377,8 @@ impl<B: PciConfigBackend> PciBus<B> {
     pub fn enable_bus_master(&mut self, addr: PciAddress) -> PciResult<()> {
         let cmd = self.backend.read_u16(addr, offsets::COMMAND)?;
         if cmd & command_bits::BUS_MASTER == 0 {
-            self.backend.write_u16(addr, offsets::COMMAND, cmd | command_bits::BUS_MASTER)?;
+            self.backend
+                .write_u16(addr, offsets::COMMAND, cmd | command_bits::BUS_MASTER)?;
         }
         Ok(())
     }
@@ -380,7 +387,8 @@ impl<B: PciConfigBackend> PciBus<B> {
     pub fn enable_memory_space(&mut self, addr: PciAddress) -> PciResult<()> {
         let cmd = self.backend.read_u16(addr, offsets::COMMAND)?;
         if cmd & command_bits::MEMORY_SPACE == 0 {
-            self.backend.write_u16(addr, offsets::COMMAND, cmd | command_bits::MEMORY_SPACE)?;
+            self.backend
+                .write_u16(addr, offsets::COMMAND, cmd | command_bits::MEMORY_SPACE)?;
         }
         Ok(())
     }
@@ -409,7 +417,9 @@ mod tests {
 
         assert!(!devices.is_empty());
         // Verify host bridge exists at 0000:00:00.0
-        let host_bridge = devices.iter().find(|d| d.address() == PciAddress::new(0, 0, 0));
+        let host_bridge = devices
+            .iter()
+            .find(|d| d.address() == PciAddress::new(0, 0, 0));
         assert!(host_bridge.is_some());
     }
 }

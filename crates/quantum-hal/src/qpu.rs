@@ -214,8 +214,7 @@ impl QuantumDevice for ExperimentalQpuDevice {
 
         let handle = JobHandle(self.next_handle);
         self.next_handle += 1;
-        self.jobs
-            .insert(handle.0, (JobStatus::Running, None, None));
+        self.jobs.insert(handle.0, (JobStatus::Running, None, None));
 
         let outcome = {
             let adapter = self.adapters_mut()?;
@@ -422,10 +421,16 @@ mod tests {
         assert_eq!(device.poll(handle).unwrap(), JobStatus::Completed);
         let result = device.read_result(handle).unwrap();
         assert!(!result.simulation_only);
-        assert!(result.notes.iter().any(|note| note.contains("TEST ADAPTER")));
+        assert!(result
+            .notes
+            .iter()
+            .any(|note| note.contains("TEST ADAPTER")));
 
         device.reset().unwrap();
-        assert!(matches!(device.poll(handle), Err(QuantumError::JobNotFound(_))));
+        assert!(matches!(
+            device.poll(handle),
+            Err(QuantumError::JobNotFound(_))
+        ));
     }
 
     #[test]

@@ -16,9 +16,9 @@
 
 use std::collections::HashMap;
 
+use quantum_runtime::{QuantumGate, QuantumSimulator};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
-use quantum_runtime::{QuantumGate, QuantumSimulator};
 
 use crate::device::{BackendClass, DeviceHealth, DeviceInfo, DeviceState, QuantumDevice};
 use crate::error::{QuantumError, Result};
@@ -621,13 +621,20 @@ mod tests {
         let mut device = ready_device();
         device.calibrate().unwrap();
         let handle = device
-            .submit(QuantumJob::new("sim0", bell_ir()).with_shots(8).with_seed(3))
+            .submit(
+                QuantumJob::new("sim0", bell_ir())
+                    .with_shots(8)
+                    .with_seed(3),
+            )
             .unwrap();
         assert_eq!(device.poll(handle).unwrap(), JobStatus::Completed);
 
         device.reset().unwrap();
         assert!(!device.is_calibrated());
-        assert!(matches!(device.poll(handle), Err(QuantumError::JobNotFound(_))));
+        assert!(matches!(
+            device.poll(handle),
+            Err(QuantumError::JobNotFound(_))
+        ));
         assert_eq!(device.health(), DeviceHealth::Healthy);
     }
 

@@ -1,4 +1,19 @@
-use qeos_kernel::{boot::BootSequence, memory::{PhysicalMemoryManager, VirtualMemoryManager, VirtPage, MapFlags}, scheduler::{Scheduler, SchedClass}, process::thread::{Thread, Tid, Priority}, ipc::{Channel, Message}, syscall::dispatcher::dispatch_syscall, elf, ring::{SpscRing, OverflowPolicy}, dma::DmaRegion, security::{CapSet, Capability}, fs::{Vfs, OpenFlags}, fs::inode::InodeKind, qpu::UnsupportedDevice, qpu::QuantumDevice};
+use qeos_kernel::{
+    boot::BootSequence,
+    dma::DmaRegion,
+    elf,
+    fs::inode::InodeKind,
+    fs::{OpenFlags, Vfs},
+    ipc::{Channel, Message},
+    memory::{MapFlags, PhysicalMemoryManager, VirtPage, VirtualMemoryManager},
+    process::thread::{Priority, Thread, Tid},
+    qpu::QuantumDevice,
+    qpu::UnsupportedDevice,
+    ring::{OverflowPolicy, SpscRing},
+    scheduler::{SchedClass, Scheduler},
+    security::{CapSet, Capability},
+    syscall::dispatcher::dispatch_syscall,
+};
 
 #[test]
 fn boot_sequence_is_deterministic() {
@@ -12,14 +27,16 @@ fn full_stack_smoke() {
     let mut pm = PhysicalMemoryManager::new(8);
     let pg = pm.allocate_page().unwrap();
     let mut vm = VirtualMemoryManager::new();
-    vm.map_page(VirtPage(0), pg.0 * 4096, MapFlags::READ).unwrap();
+    vm.map_page(VirtPage(0), pg.0 * 4096, MapFlags::READ)
+        .unwrap();
     // SCHED
     let mut sched = Scheduler::new();
     sched.spawn(Tid(1), Priority::Normal);
     assert!(sched.schedule().is_some());
     let _ = SchedClass::Normal;
     let mut t = Thread::new(1, Priority::Normal);
-    t.sleep(10); t.wake();
+    t.sleep(10);
+    t.wake();
     // IPC
     let mut ch = Channel::new(4);
     ch.send(Message::new(1, 2, 0, vec![9])).unwrap();

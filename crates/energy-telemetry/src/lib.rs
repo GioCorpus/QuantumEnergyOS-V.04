@@ -1,20 +1,16 @@
+pub mod energy;
+pub mod faults;
+pub mod provenance;
 pub mod ring_buffer;
 pub mod telemetry;
-pub mod energy;
-pub mod provenance;
-pub mod faults;
 
-pub use ring_buffer::{
-    LockFreeSpscRingBuffer,
-    TelemetrySample,
-    EnergySample,
-    SampleType,
-    RingBufferStats,
-};
-pub use telemetry::{TelemetryService, TelemetryConfig};
-pub use energy::{EnergyService, EnergyConfig};
+pub use energy::{EnergyConfig, EnergyService};
+pub use faults::{inject, FaultKind, FaultReport};
 pub use provenance::{ClassifiedSample, Provenance};
-pub use faults::{FaultKind, FaultReport, inject};
+pub use ring_buffer::{
+    EnergySample, LockFreeSpscRingBuffer, RingBufferStats, SampleType, TelemetrySample,
+};
+pub use telemetry::{TelemetryConfig, TelemetryService};
 
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")

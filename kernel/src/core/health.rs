@@ -18,19 +18,30 @@ pub struct KernelHealth {
 impl KernelHealth {
     pub fn healthy() -> Self {
         Self {
-            memory: SubsystemHealth { ok: true, detail: 0 },
-            scheduler: SubsystemHealth { ok: true, detail: 0 },
-            interrupts: SubsystemHealth { ok: true, detail: 0 },
-            devices: SubsystemHealth { ok: true, detail: 0 },
-            ipc: SubsystemHealth { ok: true, detail: 0 },
+            memory: SubsystemHealth {
+                ok: true,
+                detail: 0,
+            },
+            scheduler: SubsystemHealth {
+                ok: true,
+                detail: 0,
+            },
+            interrupts: SubsystemHealth {
+                ok: true,
+                detail: 0,
+            },
+            devices: SubsystemHealth {
+                ok: true,
+                detail: 0,
+            },
+            ipc: SubsystemHealth {
+                ok: true,
+                detail: 0,
+            },
         }
     }
     pub fn is_healthy(&self) -> bool {
-        self.memory.ok
-            && self.scheduler.ok
-            && self.interrupts.ok
-            && self.devices.ok
-            && self.ipc.ok
+        self.memory.ok && self.scheduler.ok && self.interrupts.ok && self.devices.ok && self.ipc.ok
     }
 }
 

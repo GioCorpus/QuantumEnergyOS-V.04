@@ -235,7 +235,12 @@ fn qubits_text(operation: &IrOperation) -> String {
 
 fn describe(operation: &IrOperation) -> String {
     match operation.angle {
-        Some(angle) => format!("{}({}; angle={:.6})", operation.op, qubits_text(operation), angle),
+        Some(angle) => format!(
+            "{}({}; angle={:.6})",
+            operation.op,
+            qubits_text(operation),
+            angle
+        ),
         None => format!("{}({})", operation.op, qubits_text(operation)),
     }
 }
@@ -251,10 +256,7 @@ fn lower_operation(operation: &IrOperation) -> QuantumOperation {
         "x" => QuantumOperation::X(first_qubit(operation)),
         "y" => QuantumOperation::Y(first_qubit(operation)),
         "z" => QuantumOperation::Z(first_qubit(operation)),
-        "cx" | "cnot" => QuantumOperation::CNOT(
-            qubit_at(operation, 0),
-            qubit_at(operation, 1),
-        ),
+        "cx" | "cnot" => QuantumOperation::CNOT(qubit_at(operation, 0), qubit_at(operation, 1)),
         "measure" => QuantumOperation::Measure(first_qubit(operation)),
         "reset" => QuantumOperation::Reset(first_qubit(operation)),
         _ => QuantumOperation::Custom(describe(operation)),
@@ -277,7 +279,10 @@ pub fn lower_runtime_ir(ir: &IntermediateRepresentation) -> Result<QuantumIR> {
     let mut target_less_single_qubit_ops = 0usize;
     for operation in &ir.ops {
         if operation.qubits.len() == 1
-            && matches!(operation.op.as_str(), "h" | "x" | "y" | "z" | "s" | "rx" | "ry" | "rz")
+            && matches!(
+                operation.op.as_str(),
+                "h" | "x" | "y" | "z" | "s" | "rx" | "ry" | "rz"
+            )
         {
             target_less_single_qubit_ops += 1;
         }
@@ -315,8 +320,12 @@ mod tests {
                 target: 1,
             })
             .unwrap();
-        circuit.add_gate(QuantumGate::Measurement { qubit: 0 }).unwrap();
-        circuit.add_gate(QuantumGate::Measurement { qubit: 1 }).unwrap();
+        circuit
+            .add_gate(QuantumGate::Measurement { qubit: 0 })
+            .unwrap();
+        circuit
+            .add_gate(QuantumGate::Measurement { qubit: 1 })
+            .unwrap();
         circuit
     }
 
@@ -327,7 +336,9 @@ mod tests {
         assert_eq!(QuantumOperation::CNOT(0, 1).qubits(), vec![0, 1]);
         assert_eq!(QuantumOperation::Measure(2).qubits(), vec![2]);
         assert!(QuantumOperation::Measure(0).is_measurement());
-        assert!(QuantumOperation::Custom("rx(0; angle=1.0)".to_string()).qubits().is_empty());
+        assert!(QuantumOperation::Custom("rx(0; angle=1.0)".to_string())
+            .qubits()
+            .is_empty());
         assert!(!QuantumOperation::Custom("rx".to_string()).is_native());
         assert!(QuantumOperation::X(0).is_native());
     }

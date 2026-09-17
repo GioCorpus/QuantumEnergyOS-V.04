@@ -41,7 +41,10 @@ pub trait HardwareDevice: Send + Sync {
 
     /// Check if the device is ready for operation.
     fn is_ready(&self) -> bool {
-        matches!(self.health(), DeviceHealth::Healthy | DeviceHealth::Degraded)
+        matches!(
+            self.health(),
+            DeviceHealth::Healthy | DeviceHealth::Degraded
+        )
     }
 }
 

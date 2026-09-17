@@ -170,7 +170,10 @@ mod tests {
     #[test]
     fn test_projector_creation() {
         let projector = Quartz5DProjector::new(ProjectionConfig::default());
-        assert!(matches!(projector.config().state_mapping, StateMapping::Intensity));
+        assert!(matches!(
+            projector.config().state_mapping,
+            StateMapping::Intensity
+        ));
     }
 
     #[test]

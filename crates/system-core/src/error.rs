@@ -225,17 +225,19 @@ impl From<ServiceError> for SystemCoreError {
             ServiceError::InitializationFailed => {
                 SystemCoreError::ServiceInitializationFailed("unknown".to_string())
             }
-            ServiceError::StartFailed => SystemCoreError::ServiceStartupFailed("unknown".to_string()),
-            ServiceError::StopFailed => SystemCoreError::ServiceShutdownFailed("unknown".to_string()),
+            ServiceError::StartFailed => {
+                SystemCoreError::ServiceStartupFailed("unknown".to_string())
+            }
+            ServiceError::StopFailed => {
+                SystemCoreError::ServiceShutdownFailed("unknown".to_string())
+            }
             ServiceError::HealthCheckFailed => {
                 SystemCoreError::ServiceDegraded("health check failed".to_string())
             }
             ServiceError::AuthenticationFailed => {
                 SystemCoreError::AuthenticationFailed("authentication failed".to_string())
             }
-            ServiceError::AuthorizationFailed(msg) => {
-                SystemCoreError::AuthorizationFailed(msg)
-            }
+            ServiceError::AuthorizationFailed(msg) => SystemCoreError::AuthorizationFailed(msg),
             ServiceError::RateLimited => {
                 SystemCoreError::IpcTimeout("rate limit exceeded".to_string())
             }
@@ -259,9 +261,9 @@ impl From<IpcError> for SystemCoreError {
             IpcError::IoError(io_err) => {
                 SystemCoreError::IpcTransportError(format!("io error: {}", io_err))
             }
-            IpcError::DeserializationError(msg) => {
-                SystemCoreError::IpcMessageValidationFailed(format!("deserialization failed: {}", msg))
-            }
+            IpcError::DeserializationError(msg) => SystemCoreError::IpcMessageValidationFailed(
+                format!("deserialization failed: {}", msg),
+            ),
         }
     }
 }
@@ -292,7 +294,9 @@ impl From<DatabaseError> for SystemCoreError {
         match err {
             DatabaseError::ConnectionFailed(msg) => SystemCoreError::DatabaseConnectionFailed(msg),
             DatabaseError::QueryFailed(msg) => SystemCoreError::DatabaseQueryFailed(msg),
-            DatabaseError::TransactionFailed(msg) => SystemCoreError::DatabaseTransactionFailed(msg),
+            DatabaseError::TransactionFailed(msg) => {
+                SystemCoreError::DatabaseTransactionFailed(msg)
+            }
             DatabaseError::NotFound => SystemCoreError::DatabaseRecordNotFound,
             DatabaseError::ConstraintViolation(msg) => {
                 SystemCoreError::DatabaseConstraintViolation(msg)
@@ -321,7 +325,10 @@ mod tests {
     fn test_service_error_conversion() {
         let service_err = ServiceError::InitializationFailed;
         let system_err: SystemCoreError = service_err.into();
-        assert!(matches!(system_err, SystemCoreError::ServiceInitializationFailed(_)));
+        assert!(matches!(
+            system_err,
+            SystemCoreError::ServiceInitializationFailed(_)
+        ));
     }
 
     #[test]
@@ -338,7 +345,10 @@ mod tests {
     fn test_quantum_error_conversion() {
         let quantum_err = QuantumError::BackendError("simulator not found".to_string());
         let system_err: SystemCoreError = quantum_err.into();
-        assert!(matches!(system_err, SystemCoreError::BackendNotAvailable(_)));
+        assert!(matches!(
+            system_err,
+            SystemCoreError::BackendNotAvailable(_)
+        ));
     }
 
     #[test]

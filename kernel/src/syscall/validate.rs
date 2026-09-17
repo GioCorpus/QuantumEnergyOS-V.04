@@ -3,7 +3,7 @@
 //! Host model: user addresses are indices into a bounded window. Real kernel
 //! would check canonical form, page permissions, and object ownership.
 
-use crate::security::{CapSet, Access, check};
+use crate::security::{check, Access, CapSet};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ValidateError {

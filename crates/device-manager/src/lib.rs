@@ -55,10 +55,13 @@ pub mod pci;
 
 pub use capability::{DeviceCapability, DeviceCapabilitySet, HotplugPolicy, IommuPolicy};
 pub use driver::{DeviceDriver, DriverMatch, DriverState};
-pub use error::{DeviceManagerError, DeviceManagerResult, DriverError, DriverResult, PciError, PciResult};
+pub use error::{
+    DeviceManagerError, DeviceManagerResult, DriverError, DriverResult, PciError, PciResult,
+};
 pub use id::{DeviceId, DriverId};
 pub use manager::{
-    DeviceManager, DeviceManagerConfig, DeviceRecord, DeviceSnapshot, HealthSummary, ManagerCounters,
+    DeviceManager, DeviceManagerConfig, DeviceRecord, DeviceSnapshot, HealthSummary,
+    ManagerCounters,
 };
 pub use pci::address::{PciAddress, PciClass, PciHeaderType};
 pub use pci::bar::{BarKind, MappedBar, MmioMapper, MmioRegion, PciBar, SimulatedMmioMapper};

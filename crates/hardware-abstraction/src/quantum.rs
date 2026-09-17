@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::device::{DeviceInfo, DeviceHealth, HardwareDevice};
+use crate::device::{DeviceHealth, DeviceInfo, HardwareDevice};
 use crate::error::HardwareError;
 
 /// Quantum device information.
@@ -58,7 +58,8 @@ pub struct QuantumHardware {
 
 impl QuantumHardware {
     pub fn new(info: DeviceInfo, quantum_info: QuantumDeviceInfo) -> Self {
-        let enabled = quantum_info.is_simulator || quantum_info.backend_type != QuantumBackendType::Physical;
+        let enabled =
+            quantum_info.is_simulator || quantum_info.backend_type != QuantumBackendType::Physical;
         Self {
             info,
             quantum_info,
@@ -132,7 +133,9 @@ impl QuantumHardware {
 
     /// Check if a gate is supported.
     pub fn supports_gate(&self, gate: &str) -> bool {
-        self.quantum_info.supported_gates.contains(&gate.to_string())
+        self.quantum_info
+            .supported_gates
+            .contains(&gate.to_string())
     }
 }
 

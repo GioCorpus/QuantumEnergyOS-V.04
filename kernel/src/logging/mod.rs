@@ -1,1 +1,2 @@
-pub mod logger; pub use logger::{Logger, Level};
+pub mod logger;
+pub use logger::{Level, Logger};

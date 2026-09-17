@@ -51,10 +51,12 @@ impl<T: Copy, const N: usize> LockFreeSpscRingBuffer<T, N> {
     pub fn new() -> Self {
         assert!(N.is_power_of_two(), "Ring buffer size must be power of 2");
         Self {
-            buffer: std::array::from_fn(|_| UnsafeCell::new(unsafe {
-                // SAFETY: MaybeUninit does not require initialization.
-                std::mem::zeroed()
-            })),
+            buffer: std::array::from_fn(|_| {
+                UnsafeCell::new(unsafe {
+                    // SAFETY: MaybeUninit does not require initialization.
+                    std::mem::zeroed()
+                })
+            }),
             write_pos: AtomicUsize::new(0),
             read_pos: AtomicUsize::new(0),
             dropped_count: AtomicUsize::new(0),
@@ -109,7 +111,8 @@ impl<T: Copy, const N: usize> LockFreeSpscRingBuffer<T, N> {
         let item = unsafe { *self.buffer[read & Self::MASK].get() };
 
         // Advance read position with Release ordering
-        self.read_pos.store((read + 1) & Self::MASK, Ordering::Release);
+        self.read_pos
+            .store((read + 1) & Self::MASK, Ordering::Release);
         self.total_read.fetch_add(1, Ordering::Relaxed);
 
         Some(item)
@@ -339,8 +342,8 @@ mod tests {
 
     #[test]
     fn test_telemetry_sample() {
-        let sample = TelemetrySample::new(SampleType::CpuTemperature, 65.5)
-            .with_timestamp(1234567890);
+        let sample =
+            TelemetrySample::new(SampleType::CpuTemperature, 65.5).with_timestamp(1234567890);
 
         assert_eq!(sample.value, 65.5);
         assert_eq!(sample.timestamp_ns, 1234567890);

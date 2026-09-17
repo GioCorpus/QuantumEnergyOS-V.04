@@ -8,10 +8,12 @@ pub mod storage;
 
 pub use coordinate::{Quartz5DCoordinate, Quartz5DRegion};
 pub use error::{Quartz5DError, Result};
-pub use model::{Quartz5DModel, Quartz5DModelBuilder, ModelConfig};
-pub use prediction::{Quartz5DPredictor, PredictionResult, PredictionConfig};
-pub use projection::{Quartz5DProjector, ProjectionConfig, Projected3D};
-pub use serialization::{serialize_coordinates, deserialize_coordinates, serialize_model, deserialize_model};
+pub use model::{ModelConfig, Quartz5DModel, Quartz5DModelBuilder};
+pub use prediction::{PredictionConfig, PredictionResult, Quartz5DPredictor};
+pub use projection::{Projected3D, ProjectionConfig, Quartz5DProjector};
+pub use serialization::{
+    deserialize_coordinates, deserialize_model, serialize_coordinates, serialize_model,
+};
 pub use storage::{Quartz5DStorage, StorageConfig, StorageStats};
 
 pub fn version() -> &'static str {

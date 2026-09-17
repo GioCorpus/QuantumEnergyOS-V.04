@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::error::ServiceError;
+use serde::{Deserialize, Serialize};
 
 /// Current operational state of a service
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -123,4 +123,3 @@ mod tests {
         assert_eq!(json, "\"Healthy\"");
     }
 }
-

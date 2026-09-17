@@ -169,13 +169,12 @@ impl JwtManager {
 
     /// Decode and validate a JWT token.
     pub fn decode(&self, token: &str) -> Result<JwtClaims> {
-        let token_data = decode::<JwtClaims>(token, &self.decoding_key, &self.validation)
-            .map_err(|e| match e.kind() {
-                jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
-                    IdentityError::TokenExpired
-                }
+        let token_data = decode::<JwtClaims>(token, &self.decoding_key, &self.validation).map_err(
+            |e| match e.kind() {
+                jsonwebtoken::errors::ErrorKind::ExpiredSignature => IdentityError::TokenExpired,
                 _ => IdentityError::TokenValidationFailed(e.to_string()),
-            })?;
+            },
+        )?;
 
         Ok(token_data.claims)
     }

@@ -121,7 +121,8 @@ impl SimulatedDeviceSpec {
                 let off = offset as usize;
                 match bar.kind {
                     BarKind::Memory32 => {
-                        let val = (bar.base as u32 & !0x0F) | if bar.prefetchable { 0x08 } else { 0x00 };
+                        let val =
+                            (bar.base as u32 & !0x0F) | if bar.prefetchable { 0x08 } else { 0x00 };
                         config[off..off + 4].copy_from_slice(&val.to_le_bytes());
                     }
                     BarKind::Memory64 => {
@@ -170,16 +171,20 @@ impl SimulatedDeviceSpec {
                     PciCapability::Msix(info) => {
                         config[cap_offset + 2..cap_offset + 4]
                             .copy_from_slice(&info.message_control.to_le_bytes());
-                        let table_val = (info.table_offset & !0x07) | (info.table_bar as u32 & 0x07);
+                        let table_val =
+                            (info.table_offset & !0x07) | (info.table_bar as u32 & 0x07);
                         let pba_val = info.pba_bar as u32 & 0x07;
-                        config[cap_offset + 4..cap_offset + 8].copy_from_slice(&table_val.to_le_bytes());
-                        config[cap_offset + 8..cap_offset + 12].copy_from_slice(&pba_val.to_le_bytes());
+                        config[cap_offset + 4..cap_offset + 8]
+                            .copy_from_slice(&table_val.to_le_bytes());
+                        config[cap_offset + 8..cap_offset + 12]
+                            .copy_from_slice(&pba_val.to_le_bytes());
                     }
                     PciCapability::Pcie(info) => {
                         let pcie_caps = (info.version as u16 & 0x0F)
                             | ((info.device_port_type as u16 & 0x0F) << 4)
                             | if info.slot_implemented { 1 << 8 } else { 0 };
-                        config[cap_offset + 2..cap_offset + 4].copy_from_slice(&pcie_caps.to_le_bytes());
+                        config[cap_offset + 2..cap_offset + 4]
+                            .copy_from_slice(&pcie_caps.to_le_bytes());
 
                         // Link caps at offset + 12
                         let speed_code = match info.link_speed {
@@ -191,17 +196,30 @@ impl SimulatedDeviceSpec {
                             LinkSpeed::Gen6 => 6,
                             LinkSpeed::Unknown(c) => c,
                         };
-                        let link_caps = (speed_code as u32 & 0x0F) | ((info.link_width as u32 & 0x3F) << 4);
-                        config[cap_offset + 12..cap_offset + 16].copy_from_slice(&link_caps.to_le_bytes());
+                        let link_caps =
+                            (speed_code as u32 & 0x0F) | ((info.link_width as u32 & 0x3F) << 4);
+                        config[cap_offset + 12..cap_offset + 16]
+                            .copy_from_slice(&link_caps.to_le_bytes());
 
                         // Slot caps at offset + 20
                         if info.slot_implemented {
-                            let slot_caps: u32 = if info.hotplug_capable { 1u32 << 6 } else { 0u32 }
-                                | if info.hotplug_surprise { 1u32 << 5 } else { 0u32 };
-                            config[cap_offset + 20..cap_offset + 24].copy_from_slice(&slot_caps.to_le_bytes());
+                            let slot_caps: u32 = if info.hotplug_capable {
+                                1u32 << 6
+                            } else {
+                                0u32
+                            } | if info.hotplug_surprise {
+                                1u32 << 5
+                            } else {
+                                0u32
+                            };
+                            config[cap_offset + 20..cap_offset + 24]
+                                .copy_from_slice(&slot_caps.to_le_bytes());
                         }
                     }
-                    PciCapability::AddressTranslation | PciCapability::HotPlug | PciCapability::VendorSpecific { .. } | PciCapability::Other { .. } => {}
+                    PciCapability::AddressTranslation
+                    | PciCapability::HotPlug
+                    | PciCapability::VendorSpecific { .. }
+                    | PciCapability::Other { .. } => {}
                 }
 
                 cap_offset = next_offset as usize;
@@ -347,7 +365,9 @@ impl SimulatedPciBackend {
             ],
             capabilities: vec![
                 PciCapability::PowerManagement { version: 3 },
-                PciCapability::Msi(MsiInfo::from_control(msi_control::ENABLE | (2 << 1) | msi_control::ADDRESS_64BIT)),
+                PciCapability::Msi(MsiInfo::from_control(
+                    msi_control::ENABLE | (2 << 1) | msi_control::ADDRESS_64BIT,
+                )),
                 PciCapability::Pcie(PcieCapability {
                     version: 2,
                     device_port_type: 0,
@@ -380,7 +400,9 @@ impl SimulatedPciBackend {
                 size: 0x8000, // 32 KiB
                 prefetchable: false,
             }],
-            capabilities: vec![PciCapability::Msi(MsiInfo::from_control(msi_control::ENABLE))],
+            capabilities: vec![PciCapability::Msi(MsiInfo::from_control(
+                msi_control::ENABLE,
+            ))],
         });
 
         // 5. Energy Telemetry Sensor at 0000:00:04.0
@@ -403,7 +425,9 @@ impl SimulatedPciBackend {
                 size: 0x1000, // 4 KiB
                 prefetchable: false,
             }],
-            capabilities: vec![PciCapability::Msi(MsiInfo::from_control(msi_control::ENABLE))],
+            capabilities: vec![PciCapability::Msi(MsiInfo::from_control(
+                msi_control::ENABLE,
+            ))],
         });
     }
 }

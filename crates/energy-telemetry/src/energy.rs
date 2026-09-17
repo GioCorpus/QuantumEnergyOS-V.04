@@ -78,7 +78,8 @@ impl EnergyService {
         if self.sample_count == 0 {
             return 0.0;
         }
-        self.total_energy_joules / (self.sample_count as f64 * self.config.sampling_interval_us as f64 / 1_000_000.0)
+        self.total_energy_joules
+            / (self.sample_count as f64 * self.config.sampling_interval_us as f64 / 1_000_000.0)
     }
 
     /// Get total energy consumed in joules.

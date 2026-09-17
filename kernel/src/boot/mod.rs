@@ -1,6 +1,18 @@
 //! Deterministic boot sequence.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Stage { Entry, Cpu, PhysMem, VirtMem, Irq, Sched, Devices, Vfs, Ipc, Services, Userspace }
+pub enum Stage {
+    Entry,
+    Cpu,
+    PhysMem,
+    VirtMem,
+    Irq,
+    Sched,
+    Devices,
+    Vfs,
+    Ipc,
+    Services,
+    Userspace,
+}
 impl Stage {
     pub fn log_line(self) -> &'static str {
         match self {
@@ -20,9 +32,32 @@ impl Stage {
 }
 pub struct BootSequence;
 impl BootSequence {
-    pub fn new() -> Self { Self }
+    pub fn new() -> Self {
+        Self
+    }
     pub fn stages(&self) -> Vec<Stage> {
-        vec![Stage::Entry, Stage::Cpu, Stage::PhysMem, Stage::VirtMem, Stage::Irq, Stage::Sched, Stage::Devices, Stage::Vfs, Stage::Ipc, Stage::Services, Stage::Userspace]
+        vec![
+            Stage::Entry,
+            Stage::Cpu,
+            Stage::PhysMem,
+            Stage::VirtMem,
+            Stage::Irq,
+            Stage::Sched,
+            Stage::Devices,
+            Stage::Vfs,
+            Stage::Ipc,
+            Stage::Services,
+            Stage::Userspace,
+        ]
     }
 }
-#[cfg(test)] mod tests { use super::*; #[test] fn order() { let s = BootSequence::new().stages(); assert_eq!(s[0], Stage::Entry); assert_eq!(s.len(), 11); } }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn order() {
+        let s = BootSequence::new().stages();
+        assert_eq!(s[0], Stage::Entry);
+        assert_eq!(s.len(), 11);
+    }
+}

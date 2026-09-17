@@ -85,9 +85,8 @@ mod tests {
 
     #[test]
     fn test_error_from_jwt() {
-        let jwt_err = jsonwebtoken::errors::Error::from(
-            jsonwebtoken::errors::ErrorKind::InvalidToken,
-        );
+        let jwt_err =
+            jsonwebtoken::errors::Error::from(jsonwebtoken::errors::ErrorKind::InvalidToken);
         let err: IdentityError = jwt_err.into();
         assert!(matches!(err, IdentityError::JwtError(_)));
     }

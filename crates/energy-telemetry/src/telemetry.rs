@@ -1,4 +1,4 @@
-use crate::ring_buffer::{LockFreeSpscRingBuffer, TelemetrySample, SampleType};
+use crate::ring_buffer::{LockFreeSpscRingBuffer, SampleType, TelemetrySample};
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the telemetry service.
@@ -50,36 +50,33 @@ impl TelemetryService {
 
     /// Record a CPU temperature sample.
     pub fn record_cpu_temp(&mut self, value: f64, timestamp_ns: u64) -> bool {
-        let sample = TelemetrySample::new(SampleType::CpuTemperature, value)
-            .with_timestamp(timestamp_ns);
+        let sample =
+            TelemetrySample::new(SampleType::CpuTemperature, value).with_timestamp(timestamp_ns);
         self.cpu_temp_buffer.push(sample).is_ok()
     }
 
     /// Record a GPU temperature sample.
     pub fn record_gpu_temp(&mut self, value: f64, timestamp_ns: u64) -> bool {
-        let sample = TelemetrySample::new(SampleType::GpuTemperature, value)
-            .with_timestamp(timestamp_ns);
+        let sample =
+            TelemetrySample::new(SampleType::GpuTemperature, value).with_timestamp(timestamp_ns);
         self.gpu_temp_buffer.push(sample).is_ok()
     }
 
     /// Record a CPU power sample.
     pub fn record_cpu_power(&mut self, value: f64, timestamp_ns: u64) -> bool {
-        let sample = TelemetrySample::new(SampleType::CpuPower, value)
-            .with_timestamp(timestamp_ns);
+        let sample = TelemetrySample::new(SampleType::CpuPower, value).with_timestamp(timestamp_ns);
         self.cpu_power_buffer.push(sample).is_ok()
     }
 
     /// Record a GPU power sample.
     pub fn record_gpu_power(&mut self, value: f64, timestamp_ns: u64) -> bool {
-        let sample = TelemetrySample::new(SampleType::GpuPower, value)
-            .with_timestamp(timestamp_ns);
+        let sample = TelemetrySample::new(SampleType::GpuPower, value).with_timestamp(timestamp_ns);
         self.gpu_power_buffer.push(sample).is_ok()
     }
 
     /// Record a fan speed sample.
     pub fn record_fan_speed(&mut self, value: f64, timestamp_ns: u64) -> bool {
-        let sample = TelemetrySample::new(SampleType::FanSpeed, value)
-            .with_timestamp(timestamp_ns);
+        let sample = TelemetrySample::new(SampleType::FanSpeed, value).with_timestamp(timestamp_ns);
         self.fan_speed_buffer.push(sample).is_ok()
     }
 

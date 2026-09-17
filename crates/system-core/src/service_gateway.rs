@@ -9,14 +9,19 @@ use crate::error::{IpcError, ServiceError, SystemCoreError};
 use crate::service_bus::{Message, ServiceInfo, ServiceRegistry};
 
 pub trait ServiceAccessPolicy: Send + Sync {
-    fn authorize(&self, service: &str, user: Option<&str>) -> std::result::Result<(), ServiceError>;
+    fn authorize(&self, service: &str, user: Option<&str>)
+        -> std::result::Result<(), ServiceError>;
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct AllowAllPolicy;
 
 impl ServiceAccessPolicy for AllowAllPolicy {
-    fn authorize(&self, _service: &str, _user: Option<&str>) -> std::result::Result<(), ServiceError> {
+    fn authorize(
+        &self,
+        _service: &str,
+        _user: Option<&str>,
+    ) -> std::result::Result<(), ServiceError> {
         Ok(())
     }
 }
@@ -24,7 +29,11 @@ impl ServiceAccessPolicy for AllowAllPolicy {
 pub struct RequireAuthPolicy;
 
 impl ServiceAccessPolicy for RequireAuthPolicy {
-    fn authorize(&self, service: &str, user: Option<&str>) -> std::result::Result<(), ServiceError> {
+    fn authorize(
+        &self,
+        service: &str,
+        user: Option<&str>,
+    ) -> std::result::Result<(), ServiceError> {
         match user {
             Some(_) => Ok(()),
             None => {
@@ -99,7 +108,10 @@ impl ServiceGateway {
     }
 
     pub async fn list_services(&self) -> std::result::Result<Vec<String>, ServiceError> {
-        self.registry.list_services().await.map_err(|_| ServiceError::StartFailed)
+        self.registry
+            .list_services()
+            .await
+            .map_err(|_| ServiceError::StartFailed)
     }
 
     pub async fn route_authorized(
@@ -182,7 +194,10 @@ mod tests {
         registry.register("quantum", handler, info).await.unwrap();
 
         let message = Message::new("quantum", "job.submit", json!({}));
-        let response = gateway.route_authorized(message, Some("user")).await.unwrap();
+        let response = gateway
+            .route_authorized(message, Some("user"))
+            .await
+            .unwrap();
         assert_eq!(response.event, "job.submit_response");
     }
 
@@ -209,18 +224,23 @@ mod tests {
             ServiceRateLimiter::new(1, 60),
         );
 
-        let handler: crate::service_bus::MessageHandler = Arc::new(|msg| {
-            Box::pin(async move { Ok(msg.clone()) })
-        });
+        let handler: crate::service_bus::MessageHandler =
+            Arc::new(|msg| Box::pin(async move { Ok(msg.clone()) }));
 
         let info = ServiceInfo::new("quantum", "0.1.0");
         registry.register("quantum", handler, info).await.unwrap();
 
         let message1 = Message::new("quantum", "job.submit", json!({}));
-        assert!(gateway.route_authorized(message1, Some("user")).await.is_ok());
+        assert!(gateway
+            .route_authorized(message1, Some("user"))
+            .await
+            .is_ok());
 
         let message2 = Message::new("quantum", "job.submit", json!({}));
-        assert!(gateway.route_authorized(message2, Some("user")).await.is_err());
+        assert!(gateway
+            .route_authorized(message2, Some("user"))
+            .await
+            .is_err());
     }
 
     #[tokio::test]
@@ -233,9 +253,8 @@ mod tests {
         );
 
         let info = ServiceInfo::new("quantum", "0.1.0");
-        let handler: crate::service_bus::MessageHandler = Arc::new(|msg| {
-            Box::pin(async move { Ok(msg.clone()) })
-        });
+        let handler: crate::service_bus::MessageHandler =
+            Arc::new(|msg| Box::pin(async move { Ok(msg.clone()) }));
         registry.register("quantum", handler, info).await.unwrap();
 
         let discovered = gateway.discover("quantum").await.unwrap();
@@ -253,9 +272,8 @@ mod tests {
         );
 
         let info = ServiceInfo::new("quantum", "0.1.0");
-        let handler: crate::service_bus::MessageHandler = Arc::new(|msg| {
-            Box::pin(async move { Ok(msg.clone()) })
-        });
+        let handler: crate::service_bus::MessageHandler =
+            Arc::new(|msg| Box::pin(async move { Ok(msg.clone()) }));
         registry.register("quantum", handler, info).await.unwrap();
 
         let services = gateway.list_services().await.unwrap();

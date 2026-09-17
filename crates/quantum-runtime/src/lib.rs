@@ -15,8 +15,8 @@ pub mod majorana;
 pub mod majorana_sim;
 pub mod measurement;
 pub mod noise;
-pub mod qpu_device;
 pub mod optimizer;
+pub mod qpu_device;
 pub mod resources;
 pub mod scheduler;
 pub mod simulator;
@@ -29,7 +29,7 @@ pub use backend::{
     QuantumCircuitInfo, QuantumHealth, QuantumProcessor, QuantumResult, QubitRegister,
     SimulationMetadata, SimulatorBackend,
 };
-pub use braiding::{BraidSequence, BraidStep, apply_braid_unitary};
+pub use braiding::{apply_braid_unitary, BraidSequence, BraidStep};
 pub use capabilities::BackendCapabilities;
 pub use circuit::QuantumCircuit;
 pub use compiler::{
@@ -39,7 +39,9 @@ pub use compiler::{
 pub use compute::{execute_on_backend, probe_backend, ComputeBackendKind, ComputeReport};
 pub use decoder::{Correction, Decoder, LookupDecoder, RepetitionDecoder};
 pub use error::{QuantumError, Result};
-pub use error_correction::{CorrectionStrategy, ErrorCorrectionCode, LogicalQubit, RepetitionCode, Syndrome};
+pub use error_correction::{
+    CorrectionStrategy, ErrorCorrectionCode, LogicalQubit, RepetitionCode, Syndrome,
+};
 pub use experiment::{run_experiment, ExperimentLimits, ExperimentResult, QuantumExperiment};
 pub use export::{export_csv, export_json};
 pub use gates::{Complex, QuantumGate};
@@ -49,8 +51,8 @@ pub use majorana::{FermionParity, MajoranaMode, ParityOperator};
 pub use majorana_sim::{run_majorana_experiment, MajoranaExperimentResult, MajoranaSimConfig};
 pub use measurement::{Measurement, MeasurementValue};
 pub use noise::RuntimeNoiseModel;
-pub use qpu_device::{QpuCapabilities, QpuDevice, QpuDeviceError, QpuJobHandle};
 pub use optimizer::{optimize_circuit, OptimizationReport};
+pub use qpu_device::{QpuCapabilities, QpuDevice, QpuDeviceError, QpuJobHandle};
 pub use resources::{LogicalQubitId, MeasurementId, PhysicalModeId, QubitId, RegisterId};
 pub use scheduler::{BackendAvailability, QuantumScheduler, SchedulerConfig, SchedulerStats};
 pub use simulator::QuantumSimulator;

@@ -1,3 +1,4 @@
-pub mod vfs; pub mod inode;
-pub use vfs::{Vfs, FileHandle, OpenFlags};
+pub mod inode;
+pub mod vfs;
 pub use inode::{Inode, InodeKind};
+pub use vfs::{FileHandle, OpenFlags, Vfs};

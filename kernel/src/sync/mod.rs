@@ -1,3 +1,5 @@
-pub mod mutex; pub mod atomic; pub mod spin;
+pub mod atomic;
+pub mod mutex;
+pub mod spin;
 pub use mutex::KernelMutex;
-pub use spin::{SpinLock, SpinGuard};
+pub use spin::{SpinGuard, SpinLock};

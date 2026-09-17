@@ -270,10 +270,7 @@ impl QuantumJob {
     pub fn is_terminal(&self) -> bool {
         matches!(
             self.status,
-            JobStatus::Completed
-                | JobStatus::Failed
-                | JobStatus::Cancelled
-                | JobStatus::Timeout
+            JobStatus::Completed | JobStatus::Failed | JobStatus::Cancelled | JobStatus::Timeout
         )
     }
 

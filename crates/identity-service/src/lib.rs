@@ -7,11 +7,11 @@ pub mod rbac;
 pub mod sessions;
 
 pub use audit::{AuditEvent, AuditLogger, AuditSeverity};
-pub use auth::{AuthService, AuthConfig, StoredPasswordHash};
+pub use auth::{AuthConfig, AuthService, StoredPasswordHash};
 pub use error::{IdentityError, Result};
-pub use jwks::{Jwks, JwksManager, JsonWebKey};
+pub use jwks::{JsonWebKey, Jwks, JwksManager};
 pub use jwt::{JwtClaims, JwtConfig, JwtManager, TokenPair};
-pub use rbac::{Permission, Role, RbacManager, RoleAssignment};
+pub use rbac::{Permission, RbacManager, Role, RoleAssignment};
 pub use sessions::{Session, SessionConfig, SessionManager};
 
 pub fn version() -> &'static str {

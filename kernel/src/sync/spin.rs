@@ -3,8 +3,8 @@
 //! Context: non-sleepable, IRQ-unsafe unless interrupts disabled by caller.
 //! Lock ordering (§34): Memory < Device < Process. Never sleep while holding.
 
-use core::sync::atomic::{AtomicBool, Ordering};
 use core::cell::UnsafeCell;
+use core::sync::atomic::{AtomicBool, Ordering};
 
 pub struct SpinLock<T> {
     locked: AtomicBool,
@@ -72,7 +72,9 @@ mod tests {
     #[test]
     fn spin_basic() {
         let l = SpinLock::new(1);
-        { *l.lock() = 2; }
+        {
+            *l.lock() = 2;
+        }
         assert_eq!(*l.lock(), 2);
         assert!(l.try_lock().is_some());
     }

@@ -354,7 +354,9 @@ impl QuantumResult {
     pub fn most_frequent(&self) -> Option<(String, u64)> {
         let mut entries: Vec<(&String, &u64)> = self.counts.iter().collect();
         entries.sort_by(|a, b| b.1.cmp(a.1).then_with(|| a.0.cmp(b.0)));
-        entries.first().map(|(key, count)| ((*key).clone(), **count))
+        entries
+            .first()
+            .map(|(key, count)| ((*key).clone(), **count))
     }
 }
 

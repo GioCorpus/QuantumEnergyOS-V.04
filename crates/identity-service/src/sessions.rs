@@ -178,11 +178,7 @@ impl SessionManager {
 
     /// Invalidate all sessions for a user.
     pub fn invalidate_user_sessions(&mut self, user_id: &str) -> usize {
-        let session_ids: Vec<String> = self
-            .user_sessions
-            .get(user_id)
-            .cloned()
-            .unwrap_or_default();
+        let session_ids: Vec<String> = self.user_sessions.get(user_id).cloned().unwrap_or_default();
 
         let mut count = 0;
         for session_id in session_ids {
@@ -294,7 +290,9 @@ mod tests {
     #[test]
     fn test_session_manager_create() {
         let mut manager = SessionManager::new(SessionConfig::default());
-        let session = manager.create_session("user1", vec!["user".to_string()]).unwrap();
+        let session = manager
+            .create_session("user1", vec!["user".to_string()])
+            .unwrap();
 
         assert_eq!(session.user_id, "user1");
         assert_eq!(manager.session_count(), 1);

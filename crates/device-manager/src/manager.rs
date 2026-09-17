@@ -172,12 +172,18 @@ impl DeviceManager {
     }
 
     /// Registers a driver with the manager.
-    pub fn register_driver<D: DeviceDriver + 'static>(&mut self, driver: D) -> DriverResult<DriverId> {
+    pub fn register_driver<D: DeviceDriver + 'static>(
+        &mut self,
+        driver: D,
+    ) -> DriverResult<DriverId> {
         self.register_driver_boxed(Box::new(driver))
     }
 
     /// Registers a boxed driver.
-    pub fn register_driver_boxed(&mut self, driver: Box<dyn DeviceDriver>) -> DriverResult<DriverId> {
+    pub fn register_driver_boxed(
+        &mut self,
+        driver: Box<dyn DeviceDriver>,
+    ) -> DriverResult<DriverId> {
         let name = driver.name();
         if self.drivers.iter().any(|(_, d)| d.name() == name) {
             return Err(DriverError::DriverNameTaken(name.to_string()));
@@ -206,7 +212,11 @@ impl DeviceManager {
             }
 
             // Check if device already registered
-            if self.devices.iter().any(|r| r.device.address() == pci_dev.address()) {
+            if self
+                .devices
+                .iter()
+                .any(|r| r.device.address() == pci_dev.address())
+            {
                 continue;
             }
 
@@ -272,7 +282,11 @@ impl DeviceManager {
                     }
                     Err(e) => {
                         // Driver rejected during probe, continue search
-                        tracing::debug!("Driver '{}' probe rejected device: {:?}", driver.name(), e);
+                        tracing::debug!(
+                            "Driver '{}' probe rejected device: {:?}",
+                            driver.name(),
+                            e
+                        );
                     }
                 }
             }
@@ -501,7 +515,8 @@ impl DeviceManager {
         }
 
         // Gated IOMMU policy for DMA
-        if capability == DeviceCapability::DmaAccess && !self.config.iommu_policy.permits_dma_grant()
+        if capability == DeviceCapability::DmaAccess
+            && !self.config.iommu_policy.permits_dma_grant()
         {
             return Err(DriverError::CapabilityDenied {
                 device: dev_id,
@@ -673,17 +688,30 @@ mod tests {
 
         // Initialize -> Start -> Stop -> Reset
         assert!(mgr.initialize_device(dev_id).is_ok());
-        assert_eq!(mgr.device(dev_id).unwrap().driver_state, DriverState::Initialized);
+        assert_eq!(
+            mgr.device(dev_id).unwrap().driver_state,
+            DriverState::Initialized
+        );
 
         assert!(mgr.start_device(dev_id).is_ok());
-        assert_eq!(mgr.device(dev_id).unwrap().driver_state, DriverState::Running);
+        assert_eq!(
+            mgr.device(dev_id).unwrap().driver_state,
+            DriverState::Running
+        );
 
         assert!(mgr.stop_device(dev_id).is_ok());
-        assert_eq!(mgr.device(dev_id).unwrap().driver_state, DriverState::Stopped);
+        assert_eq!(
+            mgr.device(dev_id).unwrap().driver_state,
+            DriverState::Stopped
+        );
 
-        mgr.grant_capability(dev_id, DeviceCapability::Reset).unwrap();
+        mgr.grant_capability(dev_id, DeviceCapability::Reset)
+            .unwrap();
         assert!(mgr.reset_device(dev_id).is_ok());
-        assert_eq!(mgr.device(dev_id).unwrap().driver_state, DriverState::Initialized);
+        assert_eq!(
+            mgr.device(dev_id).unwrap().driver_state,
+            DriverState::Initialized
+        );
     }
 
     #[test]
@@ -706,8 +734,12 @@ mod tests {
 
         // Switch to AllowUnmanagedDma
         mgr.config_mut().iommu_policy = IommuPolicy::AllowUnmanagedDma;
-        assert!(mgr.grant_capability(dev_id, DeviceCapability::DmaAccess).is_ok());
-        assert!(mgr.check_capability(dev_id, DeviceCapability::DmaAccess).is_ok());
+        assert!(mgr
+            .grant_capability(dev_id, DeviceCapability::DmaAccess)
+            .is_ok());
+        assert!(mgr
+            .check_capability(dev_id, DeviceCapability::DmaAccess)
+            .is_ok());
     }
 
     #[test]

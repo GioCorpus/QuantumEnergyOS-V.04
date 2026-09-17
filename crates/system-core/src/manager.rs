@@ -77,7 +77,10 @@ impl ServiceManager {
         // Collect handles to avoid holding the read lock while acquiring write locks
         let handles: Vec<_> = {
             let services = self.services.read().await;
-            services.iter().map(|(name, handle)| (name.clone(), handle.clone())).collect()
+            services
+                .iter()
+                .map(|(name, handle)| (name.clone(), handle.clone()))
+                .collect()
         };
 
         let mut errors = Vec::new();
@@ -98,10 +101,13 @@ impl ServiceManager {
         }
 
         if !errors.is_empty() {
-            return Err(crate::error::SystemCoreError::ServiceInitializationFailed(
-                format!("failed to initialize {} services", errors.len()),
-            )
-            .into());
+            return Err(
+                crate::error::SystemCoreError::ServiceInitializationFailed(format!(
+                    "failed to initialize {} services",
+                    errors.len()
+                ))
+                .into(),
+            );
         }
 
         let mut initialized = self.initialized.write().await;
@@ -127,7 +133,10 @@ impl ServiceManager {
         // Collect handles to avoid holding the read lock while acquiring write locks
         let handles: Vec<_> = {
             let services = self.services.read().await;
-            services.iter().map(|(name, handle)| (name.clone(), handle.clone())).collect()
+            services
+                .iter()
+                .map(|(name, handle)| (name.clone(), handle.clone()))
+                .collect()
         };
 
         let mut errors = Vec::new();
@@ -149,9 +158,10 @@ impl ServiceManager {
 
         if !errors.is_empty() {
             error!("failed to start {} services", errors.len());
-            return Err(crate::error::SystemCoreError::ServiceStartupFailed(
-                format!("failed to start {} services", errors.len()),
-            )
+            return Err(crate::error::SystemCoreError::ServiceStartupFailed(format!(
+                "failed to start {} services",
+                errors.len()
+            ))
             .into());
         }
 
@@ -166,7 +176,10 @@ impl ServiceManager {
         // Collect handles in reverse order (LIFO) to avoid holding the read lock
         let handles: Vec<_> = {
             let services = self.services.read().await;
-            let mut service_list: Vec<_> = services.iter().map(|(name, handle)| (name.clone(), handle.clone())).collect();
+            let mut service_list: Vec<_> = services
+                .iter()
+                .map(|(name, handle)| (name.clone(), handle.clone()))
+                .collect();
             service_list.reverse();
             service_list
         };
@@ -190,10 +203,13 @@ impl ServiceManager {
 
         if !errors.is_empty() {
             error!("failed to stop {} services", errors.len());
-            return Err(crate::error::SystemCoreError::ServiceShutdownFailed(
-                format!("failed to stop {} services", errors.len()),
-            )
-            .into());
+            return Err(
+                crate::error::SystemCoreError::ServiceShutdownFailed(format!(
+                    "failed to stop {} services",
+                    errors.len()
+                ))
+                .into(),
+            );
         }
 
         info!("all services stopped successfully");

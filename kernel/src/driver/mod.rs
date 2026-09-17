@@ -1,6 +1,13 @@
-pub mod device; pub mod bus; pub mod pci; pub mod dma; pub mod interrupt; pub mod iommu; pub mod mmio; pub mod lifecycle;
-pub use device::{Device, DeviceId, Driver, DriverRegistry};
+pub mod bus;
+pub mod device;
+pub mod dma;
+pub mod interrupt;
+pub mod iommu;
+pub mod lifecycle;
+pub mod mmio;
+pub mod pci;
 pub use bus::BusKind;
+pub use device::{Device, DeviceId, Driver, DriverRegistry};
 pub use iommu::{DomainId, Iommu, IommuPerm, MockIommu, MockIommuError};
-pub use mmio::MmioWindow;
 pub use lifecycle::DeviceLifecycle;
+pub use mmio::MmioWindow;

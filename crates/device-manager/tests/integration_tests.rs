@@ -14,7 +14,9 @@ fn test_end_to_end_enumeration_and_binding() {
     let mut bus = PciBus::new(&mut backend);
     let mut manager = DeviceManager::with_default_drivers(DeviceManagerConfig::default());
 
-    let count = manager.enumerate_bus(&mut bus).expect("enumeration should succeed");
+    let count = manager
+        .enumerate_bus(&mut bus)
+        .expect("enumeration should succeed");
     assert_eq!(count, 5);
 
     let snapshot = manager.snapshot();
@@ -33,7 +35,10 @@ fn test_end_to_end_enumeration_and_binding() {
 
     // Verify Telemetry device binding
     let telemetry = snapshot.iter().find(|d| d.vendor_id == 0x51E0).unwrap();
-    assert_eq!(telemetry.driver_name.as_deref(), Some("qeos-telemetry-driver"));
+    assert_eq!(
+        telemetry.driver_name.as_deref(),
+        Some("qeos-telemetry-driver")
+    );
     assert_eq!(telemetry.driver_state, "bound");
 }
 
@@ -56,15 +61,27 @@ fn test_device_lifecycle_and_mmio_mapping() {
     let gpu_pci = gpu_rec.device.clone();
 
     // 1. Lifecycle: Initialize -> Start
-    manager.initialize_device(gpu_id).expect("initialize should succeed");
-    assert_eq!(manager.device(gpu_id).unwrap().driver_state.to_string(), "initialized");
+    manager
+        .initialize_device(gpu_id)
+        .expect("initialize should succeed");
+    assert_eq!(
+        manager.device(gpu_id).unwrap().driver_state.to_string(),
+        "initialized"
+    );
 
     manager.start_device(gpu_id).expect("start should succeed");
-    assert_eq!(manager.device(gpu_id).unwrap().driver_state.to_string(), "running");
+    assert_eq!(
+        manager.device(gpu_id).unwrap().driver_state.to_string(),
+        "running"
+    );
 
     // 2. Capability check & grant
-    manager.grant_capability(gpu_id, DeviceCapability::MmioAccess).expect("grant mmio");
-    manager.check_capability(gpu_id, DeviceCapability::MmioAccess).expect("check mmio");
+    manager
+        .grant_capability(gpu_id, DeviceCapability::MmioAccess)
+        .expect("grant mmio");
+    manager
+        .check_capability(gpu_id, DeviceCapability::MmioAccess)
+        .expect("check mmio");
 
     // 3. MMIO mapping via SimulatedMmioMapper
     let mut mapper = SimulatedMmioMapper::new();
@@ -81,11 +98,19 @@ fn test_device_lifecycle_and_mmio_mapping() {
 
     // 4. Lifecycle: Stop -> Reset
     manager.stop_device(gpu_id).expect("stop should succeed");
-    assert_eq!(manager.device(gpu_id).unwrap().driver_state.to_string(), "stopped");
+    assert_eq!(
+        manager.device(gpu_id).unwrap().driver_state.to_string(),
+        "stopped"
+    );
 
-    manager.grant_capability(gpu_id, DeviceCapability::Reset).expect("grant reset");
+    manager
+        .grant_capability(gpu_id, DeviceCapability::Reset)
+        .expect("grant reset");
     manager.reset_device(gpu_id).expect("reset should succeed");
-    assert_eq!(manager.device(gpu_id).unwrap().driver_state.to_string(), "initialized");
+    assert_eq!(
+        manager.device(gpu_id).unwrap().driver_state.to_string(),
+        "initialized"
+    );
 }
 
 #[test]
@@ -110,7 +135,9 @@ fn test_hotplug_removal_flow() {
     manager.start_device(gpu_id).unwrap();
 
     // Hot-remove: should cleanly stop and remove
-    manager.remove_device(gpu_id).expect("removal should succeed");
+    manager
+        .remove_device(gpu_id)
+        .expect("removal should succeed");
     assert!(manager.device(gpu_id).is_none());
     assert_eq!(manager.counters().hotplug_events, 1);
 }

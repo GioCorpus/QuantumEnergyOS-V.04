@@ -1,1 +1,1 @@
-pub use crate::dma::{DmaBuffer, DmaRegion, DmaError};
+pub use crate::dma::{DmaBuffer, DmaError, DmaRegion};

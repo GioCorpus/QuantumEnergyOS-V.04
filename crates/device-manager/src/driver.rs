@@ -423,15 +423,36 @@ mod tests {
     fn driver_state_transitions() {
         let dev = DeviceId::from_raw(1);
 
-        assert!(DriverState::check_transition(dev, &DriverState::Unbound, &DriverState::Bound).is_ok());
-        assert!(DriverState::check_transition(dev, &DriverState::Bound, &DriverState::Initialized).is_ok());
-        assert!(DriverState::check_transition(dev, &DriverState::Initialized, &DriverState::Running).is_ok());
-        assert!(DriverState::check_transition(dev, &DriverState::Running, &DriverState::Stopped).is_ok());
-        assert!(DriverState::check_transition(dev, &DriverState::Stopped, &DriverState::Running).is_ok());
+        assert!(
+            DriverState::check_transition(dev, &DriverState::Unbound, &DriverState::Bound).is_ok()
+        );
+        assert!(
+            DriverState::check_transition(dev, &DriverState::Bound, &DriverState::Initialized)
+                .is_ok()
+        );
+        assert!(DriverState::check_transition(
+            dev,
+            &DriverState::Initialized,
+            &DriverState::Running
+        )
+        .is_ok());
+        assert!(
+            DriverState::check_transition(dev, &DriverState::Running, &DriverState::Stopped)
+                .is_ok()
+        );
+        assert!(
+            DriverState::check_transition(dev, &DriverState::Stopped, &DriverState::Running)
+                .is_ok()
+        );
 
         // Illegal transitions
-        assert!(DriverState::check_transition(dev, &DriverState::Unbound, &DriverState::Running).is_err());
-        assert!(DriverState::check_transition(dev, &DriverState::Bound, &DriverState::Running).is_err());
+        assert!(
+            DriverState::check_transition(dev, &DriverState::Unbound, &DriverState::Running)
+                .is_err()
+        );
+        assert!(
+            DriverState::check_transition(dev, &DriverState::Bound, &DriverState::Running).is_err()
+        );
     }
 
     #[test]

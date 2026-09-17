@@ -1,4 +1,6 @@
-pub mod scheduler; pub mod runqueue; pub mod percpu;
-pub use scheduler::{Scheduler, SchedClass};
-pub use runqueue::RunQueue;
+pub mod percpu;
+pub mod runqueue;
+pub mod scheduler;
 pub use percpu::PerCpu;
+pub use runqueue::RunQueue;
+pub use scheduler::{SchedClass, Scheduler};

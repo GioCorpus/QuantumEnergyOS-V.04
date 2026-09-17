@@ -102,15 +102,21 @@ impl Message {
         }
 
         if self.service.is_empty() {
-            return Err(IpcError::ValidationError("service name cannot be empty".to_string()));
+            return Err(IpcError::ValidationError(
+                "service name cannot be empty".to_string(),
+            ));
         }
 
         if self.event.is_empty() {
-            return Err(IpcError::ValidationError("event name cannot be empty".to_string()));
+            return Err(IpcError::ValidationError(
+                "event name cannot be empty".to_string(),
+            ));
         }
 
         if self.message_id.is_empty() {
-            return Err(IpcError::ValidationError("message_id cannot be empty".to_string()));
+            return Err(IpcError::ValidationError(
+                "message_id cannot be empty".to_string(),
+            ));
         }
 
         Ok(())
@@ -118,14 +124,16 @@ impl Message {
 
     /// Serialize the message to JSON
     pub fn to_json(&self) -> std::result::Result<String, IpcError> {
-        serde_json::to_string(self)
-            .map_err(|e| IpcError::SerializationError(format!("message serialization failed: {}", e)))
+        serde_json::to_string(self).map_err(|e| {
+            IpcError::SerializationError(format!("message serialization failed: {}", e))
+        })
     }
 
     /// Deserialize a message from JSON
     pub fn from_json(json: &str) -> std::result::Result<Self, IpcError> {
-        serde_json::from_str(json)
-            .map_err(|e| IpcError::DeserializationError(format!("message deserialization failed: {}", e)))
+        serde_json::from_str(json).map_err(|e| {
+            IpcError::DeserializationError(format!("message deserialization failed: {}", e))
+        })
     }
 }
 
@@ -170,7 +178,14 @@ impl ServiceInfo {
 }
 
 /// Message handler function type
-pub type MessageHandler = Arc<dyn Fn(Message) -> std::pin::Pin<Box<dyn std::future::Future<Output = std::result::Result<Message, IpcError>> + Send>> + Send + Sync>;
+pub type MessageHandler = Arc<
+    dyn Fn(
+            Message,
+        ) -> std::pin::Pin<
+            Box<dyn std::future::Future<Output = std::result::Result<Message, IpcError>> + Send>,
+        > + Send
+        + Sync,
+>;
 
 /// Service registry for IPC service discovery
 ///
@@ -238,12 +253,10 @@ impl ServiceRegistry {
         message.validate()?;
 
         let services = self.services.read().await;
-        let (handler, _) = services
-            .get(&message.service)
-            .ok_or_else(|| {
-                error!("service not registered: {}", message.service);
-                IpcError::ServiceNotRegistered(message.service.clone())
-            })?;
+        let (handler, _) = services.get(&message.service).ok_or_else(|| {
+            error!("service not registered: {}", message.service);
+            IpcError::ServiceNotRegistered(message.service.clone())
+        })?;
 
         debug!(
             message_id = %message.message_id,
