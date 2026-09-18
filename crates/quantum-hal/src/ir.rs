@@ -418,7 +418,9 @@ mod tests {
     fn test_parameterised_gate_lowers_to_custom() {
         let mut circuit = QuantumCircuit::new("rot", 1).unwrap();
         circuit
-            .add_gate(QuantumGate::RotationX { theta: 1.5707963 })
+            .add_gate(QuantumGate::RotationX {
+                theta: std::f64::consts::FRAC_PI_2,
+            })
             .unwrap();
 
         let ir = lower_circuit_to_ir(&circuit).unwrap();
