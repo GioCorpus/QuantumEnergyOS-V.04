@@ -295,6 +295,7 @@ impl QuantumSimulator {
         }
 
         let mut new_state = vec![Complex::zero(); dim];
+        #[allow(clippy::needless_range_loop)]
         for i in 0..dim {
             if ((i >> qubit) & 1) == measurement as usize {
                 new_state[i] = self.state[i] * (1.0 / norm);

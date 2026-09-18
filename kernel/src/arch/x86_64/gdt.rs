@@ -1,5 +1,5 @@
 //! GDT stub.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Gdt;
 impl Gdt {
     pub fn new() -> Self {

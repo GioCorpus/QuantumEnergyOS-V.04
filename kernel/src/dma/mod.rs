@@ -21,7 +21,7 @@ pub struct DmaRegion {
 }
 impl DmaRegion {
     pub fn new(phys: usize, size: usize) -> Result<Self, DmaError> {
-        if phys % 4096 != 0 {
+        if !phys.is_multiple_of(4096) {
             return Err(DmaError::Misaligned);
         }
         if size == 0 || size > (1 << 20) * 64 {
@@ -64,7 +64,7 @@ pub struct DmaMapping {
 }
 impl DmaMapping {
     pub fn new(iova: u64, size: usize) -> Result<Self, DmaError> {
-        if iova % 4096 != 0 {
+        if !iova.is_multiple_of(4096) {
             return Err(DmaError::Misaligned);
         }
         if size == 0 || size > (1 << 20) * 64 {
@@ -102,7 +102,7 @@ pub struct DmaRing {
 }
 impl DmaRing {
     pub fn new(depth: usize) -> Result<Self, DmaError> {
-        if depth < 2 || depth > 1024 || !depth.is_power_of_two() {
+        if !(2..=1024).contains(&depth) || !depth.is_power_of_two() {
             return Err(DmaError::TooLarge);
         }
         Ok(Self {

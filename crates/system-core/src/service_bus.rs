@@ -238,7 +238,7 @@ impl ServiceRegistry {
         services
             .get(name)
             .map(|(_, info)| info.clone())
-            .ok_or_else(|| SystemCoreError::IpcServiceNotRegistered(name.to_string()).into())
+            .ok_or_else(|| SystemCoreError::IpcServiceNotRegistered(name.to_string()))
     }
 
     /// List all registered services

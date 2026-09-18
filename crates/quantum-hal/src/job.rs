@@ -75,22 +75,17 @@ impl std::fmt::Display for JobStatus {
 }
 
 /// Scheduling priority of a job.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
 pub enum JobPriority {
     /// Background work.
     Low = 0,
     /// Default priority.
+    #[default]
     Normal = 1,
     /// Interactive work.
     High = 2,
     /// Reserved for system operations.
     Critical = 3,
-}
-
-impl Default for JobPriority {
-    fn default() -> Self {
-        JobPriority::Normal
-    }
 }
 
 impl std::fmt::Display for JobPriority {

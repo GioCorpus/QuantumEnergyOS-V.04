@@ -25,7 +25,7 @@ impl VirtualMemoryManager {
         if self.map.contains_key(&v.0) {
             return Err("already mapped");
         }
-        if p % crate::core::config::PAGE_SIZE != 0 {
+        if !p.is_multiple_of(crate::core::config::PAGE_SIZE) {
             return Err("phys misaligned");
         }
         if (f.0 & MapFlags::WRITE.0 != 0) && (f.0 & MapFlags::EXEC.0 != 0) {

@@ -90,7 +90,7 @@ mod tests {
 
     #[test]
     fn test_service_status_ordering() {
-        let statuses = vec![
+        let statuses = [
             ServiceStatus::Initializing,
             ServiceStatus::Running,
             ServiceStatus::Stopped,
@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn test_health_status_values() {
-        let statuses = vec![
+        let statuses = [
             HealthStatus::Healthy,
             HealthStatus::Warning,
             HealthStatus::Unhealthy,

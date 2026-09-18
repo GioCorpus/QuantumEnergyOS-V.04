@@ -23,6 +23,9 @@ impl RunQueue {
     pub fn len(&self) -> usize {
         self.queues.iter().map(|q| q.len()).sum()
     }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 impl Default for RunQueue {
     fn default() -> Self {

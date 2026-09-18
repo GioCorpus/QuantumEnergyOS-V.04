@@ -31,6 +31,11 @@ impl Stage {
     }
 }
 pub struct BootSequence;
+impl Default for BootSequence {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl BootSequence {
     pub fn new() -> Self {
         Self

@@ -7,20 +7,15 @@ use crate::measurement::{Measurement, MeasurementValue};
 use serde::{Deserialize, Serialize};
 
 /// Correction strategy selector.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum CorrectionStrategy {
     /// Detect only, no correction.
+    #[default]
     DetectionOnly,
     /// Classical repetition-code majority vote (MODEL).
     RepetitionCode,
     /// Parity-check based detection (MODEL).
     ParityCheck,
-}
-
-impl Default for CorrectionStrategy {
-    fn default() -> Self {
-        Self::DetectionOnly
-    }
 }
 
 /// A syndrome extracted from parity measurements.
@@ -137,7 +132,7 @@ impl ErrorCorrectionCode for RepetitionCode {
         q.syndrome()
     }
     fn logical_error_rate(&self, p: f64) -> f64 {
-        let t = (self.replicas + 1) / 2;
+        let t = self.replicas.div_ceil(2);
         p.powi(t as i32)
     }
 }

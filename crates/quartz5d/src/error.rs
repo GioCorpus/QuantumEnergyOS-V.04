@@ -46,7 +46,7 @@ mod tests {
 
     #[test]
     fn test_error_from_io() {
-        let io_err = std::io::Error::new(std::io::ErrorKind::Other, "test");
+        let io_err = std::io::Error::other("test");
         let err: Quartz5DError = io_err.into();
         assert!(matches!(err, Quartz5DError::IoError(_)));
     }

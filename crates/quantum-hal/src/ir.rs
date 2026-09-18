@@ -20,7 +20,6 @@ use serde::{Deserialize, Serialize};
 
 use quantum_runtime::{
     CompilerConfig, IntermediateRepresentation, IrOperation, QuantumCircuit, QuantumCompiler,
-    QuantumGate,
 };
 
 use crate::error::{QuantumError, Result};
@@ -310,6 +309,7 @@ pub fn lower_circuit_to_ir(circuit: &QuantumCircuit) -> Result<QuantumIR> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use quantum_runtime::QuantumGate;
 
     fn bell_circuit() -> QuantumCircuit {
         let mut circuit = QuantumCircuit::new("bell", 2).unwrap();

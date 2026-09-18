@@ -15,9 +15,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::device::{BackendClass, DeviceHealth, DeviceInfo, DeviceState, QuantumDevice};
-use crate::error::{QuantumError, Result};
-use crate::job::{JobHandle, JobStatus, QuantumJob, QuantumResult};
+use crate::device::{BackendClass, DeviceHealth, DeviceInfo, DeviceState};
 use crate::simulator::SimulatorDevice;
 
 /// Accelerator API families the abstraction is prepared for.
@@ -69,8 +67,11 @@ pub enum AcceleratorWorkload {
 /// Accelerator-backed device abstraction.
 #[derive(Debug)]
 pub struct AcceleratorDevice {
+    #[allow(dead_code)]
     info: DeviceInfo,
+    #[allow(dead_code)]
     state: DeviceState,
+    #[allow(dead_code)]
     health: DeviceHealth,
     kind: AcceleratorKind,
     vendor_backend_available: bool,

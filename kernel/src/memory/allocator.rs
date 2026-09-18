@@ -8,6 +8,11 @@ pub struct AllocStats {
 pub struct KernelAllocator {
     stats: Mutex<AllocStats>,
 }
+impl Default for KernelAllocator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl KernelAllocator {
     pub const fn new() -> Self {
         Self {

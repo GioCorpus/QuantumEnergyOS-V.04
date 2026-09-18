@@ -90,9 +90,9 @@ impl Quartz5DPredictor {
         let dx = (last.x - prev.x) as f64 / dt;
         let dy = (last.y - prev.y) as f64 / dt;
         let dz = (last.z - prev.z) as f64 / dt;
-        let ds = (last.state - prev.state) as f64 / dt;
+        let ds = (last.state - prev.state) / dt;
 
-        let next_t = last.t + (dt as i64);
+        let next_t = last.t + dt as i64;
 
         Some(PredictionResult {
             predicted: Quartz5DCoordinate::new(
@@ -128,7 +128,7 @@ impl Quartz5DPredictor {
 
         let last = &history[history.len() - 1];
         let dt = if history.len() >= 2 {
-            (last.t - history[history.len() - 2].t) as i64
+            last.t - history[history.len() - 2].t
         } else {
             1
         };
@@ -164,7 +164,7 @@ impl Quartz5DPredictor {
             vx: (last.x - prev.x) as f64 / dt,
             vy: (last.y - prev.y) as f64 / dt,
             vz: (last.z - prev.z) as f64 / dt,
-            vs: (last.state - prev.state) as f64 / dt,
+            vs: (last.state - prev.state) / dt,
         })
     }
 

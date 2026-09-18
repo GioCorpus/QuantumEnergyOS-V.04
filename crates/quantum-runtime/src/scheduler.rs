@@ -22,17 +22,12 @@ fn now_secs() -> u64 {
 }
 
 /// Availability state for a named backend.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum BackendAvailability {
+    #[default]
     Available,
     Degraded,
     Unavailable,
-}
-
-impl Default for BackendAvailability {
-    fn default() -> Self {
-        Self::Available
-    }
 }
 
 /// Scheduler configuration.
@@ -190,6 +185,7 @@ impl QuantumScheduler {
 
     /// Dequeue the next schedulable job, skipping unavailable backends and
     /// expired deadlines (expired jobs are marked Failed).
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Option<QuantumJob> {
         while let Some(mut job) = self.queue.pop_front() {
             // Deadline check.

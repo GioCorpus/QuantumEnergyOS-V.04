@@ -21,11 +21,12 @@ use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Job priority level
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
 pub enum JobPriority {
     /// Lowest priority - background jobs
     Low = 0,
     /// Normal priority
+    #[default]
     Normal = 1,
     /// High priority - interactive jobs
     High = 2,
@@ -41,12 +42,6 @@ impl std::fmt::Display for JobPriority {
             Self::High => write!(f, "High"),
             Self::Critical => write!(f, "Critical"),
         }
-    }
-}
-
-impl Default for JobPriority {
-    fn default() -> Self {
-        Self::Normal
     }
 }
 

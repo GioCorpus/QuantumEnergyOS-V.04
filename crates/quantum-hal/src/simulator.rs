@@ -127,6 +127,7 @@ impl SimulatorDevice {
     /// Used by wrapper devices (accelerator, Majorana) that delegate execution
     /// to this engine and must disclose that no vendor hardware was used.
     /// Returns `true` when a stored result was annotated.
+    #[allow(dead_code)]
     pub(crate) fn annotate(&mut self, handle: JobHandle, note: &str) -> bool {
         match self.jobs.get_mut(&handle.0) {
             Some(record) => match &mut record.result {
@@ -192,7 +193,7 @@ fn apply_operations(simulator: &mut QuantumSimulator, ir: &QuantumIR) -> Result<
 /// Sample a computational-basis index from a probability vector.
 fn sample_index(probabilities: &[f64], rng: &mut impl Rng) -> usize {
     let total: f64 = probabilities.iter().sum();
-    if !(total > 0.0) {
+    if total <= 0.0 {
         return 0;
     }
 

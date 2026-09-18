@@ -21,6 +21,7 @@ impl Permission {
     }
 
     /// Parse a permission from a string like "quantum:read".
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Result<Self> {
         let parts: Vec<&str> = s.split(':').collect();
         if parts.len() != 2 {

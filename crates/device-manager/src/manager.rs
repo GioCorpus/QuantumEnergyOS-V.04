@@ -332,10 +332,9 @@ impl DeviceManager {
             .map(|(_, d)| d)
             .ok_or(DriverError::DriverNotFound { driver: drv_id })?;
 
-        driver.initialize(&pci_dev).map_err(|e| {
+        driver.initialize(&pci_dev).inspect_err(|e| {
             self.counters.failed += 1;
             self.devices[dev_idx].driver_state = DriverState::Failed(e.to_string());
-            e
         })?;
 
         let record = &mut self.devices[dev_idx];
@@ -369,10 +368,9 @@ impl DeviceManager {
             .map(|(_, d)| d)
             .ok_or(DriverError::DriverNotFound { driver: drv_id })?;
 
-        driver.start(&pci_dev).map_err(|e| {
+        driver.start(&pci_dev).inspect_err(|e| {
             self.counters.failed += 1;
             self.devices[dev_idx].driver_state = DriverState::Failed(e.to_string());
-            e
         })?;
 
         let record = &mut self.devices[dev_idx];
@@ -406,10 +404,9 @@ impl DeviceManager {
             .map(|(_, d)| d)
             .ok_or(DriverError::DriverNotFound { driver: drv_id })?;
 
-        driver.stop(&pci_dev).map_err(|e| {
+        driver.stop(&pci_dev).inspect_err(|e| {
             self.counters.failed += 1;
             self.devices[dev_idx].driver_state = DriverState::Failed(e.to_string());
-            e
         })?;
 
         let record = &mut self.devices[dev_idx];
@@ -442,10 +439,9 @@ impl DeviceManager {
             .map(|(_, d)| d)
             .ok_or(DriverError::DriverNotFound { driver: drv_id })?;
 
-        driver.reset(&pci_dev).map_err(|e| {
+        driver.reset(&pci_dev).inspect_err(|e| {
             self.counters.failed += 1;
             self.devices[dev_idx].driver_state = DriverState::Failed(e.to_string());
-            e
         })?;
 
         let record = &mut self.devices[dev_idx];

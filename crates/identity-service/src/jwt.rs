@@ -250,8 +250,10 @@ mod tests {
 
     #[test]
     fn test_claims_expiration() {
-        let mut config = JwtConfig::default();
-        config.access_token_lifetime_secs = 0;
+        let config = JwtConfig {
+            access_token_lifetime_secs: 0,
+            ..Default::default()
+        };
 
         let claims = JwtClaims::new_access("user", vec![], &config);
         assert!(claims.is_expired() || claims.exp <= current_timestamp());

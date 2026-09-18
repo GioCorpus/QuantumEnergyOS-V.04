@@ -1,7 +1,8 @@
 //! Explicit kernel lifecycle phases (§7). Transition is explicit, no silent continuation.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum KernelPhase {
+    #[default]
     Boot,
     EarlyInit,
     MemoryInit,
@@ -14,7 +15,7 @@ pub enum KernelPhase {
     Shutdown,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct KernelState {
     phase: KernelPhase,
 }

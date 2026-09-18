@@ -55,6 +55,9 @@ impl<T: Copy, const N: usize> SpscRing<T, N> {
             .load(Ordering::Acquire)
             .wrapping_sub(self.tail.load(Ordering::Acquire))
     }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 #[cfg(test)]
 mod tests {

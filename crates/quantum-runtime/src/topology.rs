@@ -14,12 +14,10 @@ use serde::{Deserialize, Serialize};
 /// - Tetrons: Logical qubits encoded using multiple Majorana modes
 /// - Braiding: Exchange operations that may implement quantum gates
 /// - Topological protection: Error suppression through non-local encoding
-
 // ---------------------------------------------------------------------------
 // Majorana Zero Modes
 // ---------------------------------------------------------------------------
-
-/// Represents a Majorana Zero Mode (MZM) in the topological model.
+///   Represents a Majorana Zero Mode (MZM) in the topological model.
 ///
 /// In topological quantum computing theory, Majorana zero modes are
 /// quasiparticles that may emerge at the ends of topological superconductors.
@@ -600,7 +598,7 @@ mod tests {
 
     #[test]
     fn test_correction_strategy() {
-        let strategies = vec![
+        let strategies = [
             CorrectionStrategy::None,
             CorrectionStrategy::SurfaceCode,
             CorrectionStrategy::ColorCode,

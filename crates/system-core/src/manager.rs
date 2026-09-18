@@ -101,13 +101,9 @@ impl ServiceManager {
         }
 
         if !errors.is_empty() {
-            return Err(
-                crate::error::SystemCoreError::ServiceInitializationFailed(format!(
-                    "failed to initialize {} services",
-                    errors.len()
-                ))
-                .into(),
-            );
+            return Err(crate::error::SystemCoreError::ServiceInitializationFailed(
+                format!("failed to initialize {} services", errors.len()),
+            ));
         }
 
         let mut initialized = self.initialized.write().await;
@@ -123,8 +119,7 @@ impl ServiceManager {
         if !*initialized {
             return Err(crate::error::SystemCoreError::ServiceStartupFailed(
                 "services must be initialized before starting".to_string(),
-            )
-            .into());
+            ));
         }
         drop(initialized);
 
@@ -158,11 +153,9 @@ impl ServiceManager {
 
         if !errors.is_empty() {
             error!("failed to start {} services", errors.len());
-            return Err(crate::error::SystemCoreError::ServiceStartupFailed(format!(
-                "failed to start {} services",
-                errors.len()
-            ))
-            .into());
+            return Err(crate::error::SystemCoreError::ServiceStartupFailed(
+                format!("failed to start {} services", errors.len()),
+            ));
         }
 
         info!("all services started successfully");
@@ -203,13 +196,9 @@ impl ServiceManager {
 
         if !errors.is_empty() {
             error!("failed to stop {} services", errors.len());
-            return Err(
-                crate::error::SystemCoreError::ServiceShutdownFailed(format!(
-                    "failed to stop {} services",
-                    errors.len()
-                ))
-                .into(),
-            );
+            return Err(crate::error::SystemCoreError::ServiceShutdownFailed(
+                format!("failed to stop {} services", errors.len()),
+            ));
         }
 
         info!("all services stopped successfully");
@@ -376,6 +365,7 @@ mod tests {
     /// Mock service for testing
     #[derive(Debug)]
     struct MockService {
+        #[allow(dead_code)]
         name: String,
         status: ServiceStatus,
         health: HealthStatus,

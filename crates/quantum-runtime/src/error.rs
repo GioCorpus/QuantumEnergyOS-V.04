@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_error_conversion_from_io() {
-        let io_err = std::io::Error::new(std::io::ErrorKind::Other, "test");
+        let io_err = std::io::Error::other("test");
         let q_err: QuantumError = io_err.into();
         assert!(matches!(q_err, QuantumError::IoError(_)));
     }

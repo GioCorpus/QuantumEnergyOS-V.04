@@ -28,6 +28,7 @@ impl Default for TelemetryConfig {
 /// providing lock-free SPSC communication between data producers
 /// (e.g., sensor interrupt handlers) and consumers (e.g., dashboard).
 pub struct TelemetryService {
+    #[allow(dead_code)]
     config: TelemetryConfig,
     cpu_temp_buffer: LockFreeSpscRingBuffer<TelemetrySample, 1024>,
     gpu_temp_buffer: LockFreeSpscRingBuffer<TelemetrySample, 1024>,

@@ -2,13 +2,14 @@
 use crate::dma::DmaError;
 #[derive(Debug)]
 pub struct MmioWindow {
+    #[allow(dead_code)]
     base: usize,
     size: usize,
     mem: Vec<u32>,
 }
 impl MmioWindow {
     pub fn new(base: usize, size: usize) -> Result<Self, DmaError> {
-        if base % 4 != 0 || size % 4 != 0 || size == 0 {
+        if !base.is_multiple_of(4) || !size.is_multiple_of(4) || size == 0 {
             return Err(DmaError::Misaligned);
         }
         Ok(Self {
@@ -18,7 +19,7 @@ impl MmioWindow {
         })
     }
     fn check(&self, off: usize, n: usize) -> Result<usize, DmaError> {
-        if off % n != 0 {
+        if !off.is_multiple_of(n) {
             return Err(DmaError::UnalignedAccess);
         }
         if off.checked_add(n).map(|e| e > self.size).unwrap_or(true) {
