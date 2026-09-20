@@ -1,10 +1,12 @@
 pub mod allocator;
 pub mod heap;
 pub mod oom;
+pub mod page_table;
 pub mod physical;
 pub mod virtual_;
 pub use allocator::{AllocStats, KernelAllocator};
 pub use oom::{OomAction, OomPolicy};
+pub use page_table::{PageTable, tlb};
 pub use physical::{PhysAddr, PhysPage, PhysicalMemoryManager};
 pub use virtual_::{MapFlags, VirtAddr, VirtPage, VirtualMemoryManager};
 pub const PAGE_SIZE: usize = 4096;
