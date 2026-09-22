@@ -18,6 +18,8 @@ members = [
    "crates/qeos-gpu-compute",
    "crates/qeos-node",
    "crates/qeos-cluster",
+   "crates/qeos-research",
+   "crates/qeos-cli",
 ]
 resolver = "2"
 
@@ -77,6 +79,8 @@ hardware-abstraction = { path = "crates/hardware-abstraction" }
 device-manager = { path = "crates/device-manager" }
 qeos-node = { path = "crates/qeos-node" }
 qeos-cluster = { path = "crates/qeos-cluster" }
+qeos-research = { path = "crates/qeos-research" }
+qeos-cli = { path = "crates/qeos-cli" }
 
 [profile.dev]
 debug = true

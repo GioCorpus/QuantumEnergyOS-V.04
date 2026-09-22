@@ -442,6 +442,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "qeos-cli"
+version = "0.5.0"
+dependencies = [
+ "qeos-cluster",
+ "qeos-gpu-compute",
+ "qeos-node",
+ "qeos-qpu",
+ "qeos-research",
+ "serde_json",
+]
+
+[[package]]
 name = "qeos-cluster"
 version = "0.5.0"
 dependencies = [
@@ -489,6 +501,18 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "qeos-research"
+version = "0.5.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+ "uuid",
 ]
 
 [[package]]

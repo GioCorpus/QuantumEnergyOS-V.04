@@ -49,6 +49,7 @@ pub use lifecycle::{
     Backoff, MaintenanceMode, NodeLifecycleState, NodeRuntime, RestartPolicy,
     ServiceLifecycleState, ServiceSpec, ServiceStatus,
 };
+pub use node::Node;
 
 /// QEOS node crate version.
 pub fn version() -> &'static str {

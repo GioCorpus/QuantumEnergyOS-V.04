@@ -1,0 +1,15 @@
+[package]
+name = "qeos-research"
+version = "0.5.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "QEOS P7.8 research platform: experiments, datasets, artifacts, reproducibility, workflows."
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+sha2 = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
