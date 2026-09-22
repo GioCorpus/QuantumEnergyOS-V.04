@@ -17,6 +17,7 @@ members = [
    "crates/qeos-qpu",
    "crates/qeos-gpu-compute",
    "crates/qeos-node",
+   "crates/qeos-cluster",
 ]
 resolver = "2"
 
@@ -75,6 +76,7 @@ energy-telemetry = { path = "crates/energy-telemetry" }
 hardware-abstraction = { path = "crates/hardware-abstraction" }
 device-manager = { path = "crates/device-manager" }
 qeos-node = { path = "crates/qeos-node" }
+qeos-cluster = { path = "crates/qeos-cluster" }
 
 [profile.dev]
 debug = true

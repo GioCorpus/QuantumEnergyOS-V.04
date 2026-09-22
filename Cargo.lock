@@ -442,6 +442,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "qeos-cluster"
+version = "0.5.0"
+dependencies = [
+ "chrono",
+ "qeos-node",
+ "rand",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+ "uuid",
+]
+
+[[package]]
 name = "qeos-gpu-compute"
 version = "0.4.4"
 dependencies = [
