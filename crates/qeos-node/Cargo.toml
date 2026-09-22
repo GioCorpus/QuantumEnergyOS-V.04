@@ -1,0 +1,20 @@
+[package]
+name = "qeos-node"
+version = "0.5.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "QEOS node operations platform: lifecycle, node health, hardware discovery, capability inventory and persistence."
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# Internal workspace crates
+hardware-abstraction = { workspace = true }
+
+[dev-dependencies]

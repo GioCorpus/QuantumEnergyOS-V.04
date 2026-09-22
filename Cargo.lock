@@ -456,6 +456,19 @@ name = "qeos-kernel"
 version = "1.0.0"
 
 [[package]]
+name = "qeos-node"
+version = "0.5.0"
+dependencies = [
+ "chrono",
+ "hardware-abstraction",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "qeos-qpu"
 version = "0.4.3"
 dependencies = [
