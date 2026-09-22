@@ -2,7 +2,11 @@
 name = "qeos-qpu"
 version = "0.4.3"
 edition = "2021"
-description = "QEOS Phase 4.3 QPU CLI: backends, simulation, Majorana, benchmarks, experiments (simulator-backed)"
+description = "QEOS P7.4 QPU: generic QPU interface, backend architecture, job isolation, Majorana hardware readiness"
+
+[lib]
+name = "qeos_qpu"
+path = "src/lib.rs"
 
 [[bin]]
 name = "qeos-qpu"
@@ -11,5 +15,5 @@ path = "src/main.rs"
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
+thiserror = { workspace = true }
 quantum-runtime = { workspace = true }
-quantum-hal = { workspace = true }

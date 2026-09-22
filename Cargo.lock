@@ -471,10 +471,10 @@ dependencies = [
 name = "qeos-qpu"
 version = "0.4.3"
 dependencies = [
- "quantum-hal",
  "quantum-runtime",
  "serde",
  "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
