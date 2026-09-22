@@ -17,8 +17,10 @@
 #![forbid(unsafe_code)]
 
 pub mod device;
+pub mod device_lifecycle;
 pub mod discovery;
 pub mod error;
+pub mod handles;
 pub mod health;
 pub mod inventory;
 pub mod lifecycle;
@@ -28,11 +30,13 @@ pub use device::{
     Device, DeviceCapabilities, DeviceClass, DeviceIdentity, DeviceOperationalState,
     DeviceTelemetry, DeviceTopology,
 };
+pub use device_lifecycle::{DeviceLifecycle, DeviceState};
 pub use discovery::{
     DeviceClassTag, DiscoveryEntry, DiscoveryError, HardwareSource, HostDiscoverySource,
     SimulatedDiscoverySource,
 };
 pub use error::{NodeError, Result};
+pub use handles::{DeviceHandle, HandleCapability, HandleManager};
 pub use health::{
     ComponentHealth, EnergyHealth, HealthStatus, MeasurementSource, NodeHealth,
     ServiceHealthSummary,

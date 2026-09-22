@@ -445,7 +445,6 @@ dependencies = [
 name = "qeos-gpu-compute"
 version = "0.4.4"
 dependencies = [
- "quantum-runtime",
  "serde",
  "serde_json",
  "thiserror 1.0.69",
