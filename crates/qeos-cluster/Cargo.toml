@@ -17,3 +17,6 @@ rand = { workspace = true }
 
 # Internal workspace crates
 qeos-node = { workspace = true }
+
+[dev-dependencies]
+qeos-qpu = { workspace = true }

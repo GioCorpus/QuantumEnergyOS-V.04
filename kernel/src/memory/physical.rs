@@ -3,9 +3,9 @@
 //! PhysAddr/PhysPage are strongly typed with checked arithmetic,
 //! alignment helpers, and canonical address validation.
 
+use super::PAGE_SIZE;
 use std::alloc::{alloc, Layout};
 use std::collections::BTreeSet;
-use super::PAGE_SIZE;
 
 /// Physical address width supported by x86_64 (52 bits = 4 PiB).
 const PHYS_ADDR_WIDTH: usize = 52;
@@ -24,17 +24,23 @@ impl PageFrame {
             std::alloc::handle_alloc_error(layout);
         }
         // Zero the page frame
-        unsafe { std::ptr::write_bytes(ptr, 0, PAGE_SIZE); }
+        unsafe {
+            std::ptr::write_bytes(ptr, 0, PAGE_SIZE);
+        }
         Self { ptr }
     }
 
-    fn as_ptr(&self) -> *const u8 { self.ptr }
+    fn as_ptr(&self) -> *const u8 {
+        self.ptr
+    }
 }
 
 impl Drop for PageFrame {
     fn drop(&mut self) {
         let layout = Layout::from_size_align(PAGE_SIZE, PAGE_SIZE).unwrap();
-        unsafe { std::alloc::dealloc(self.ptr, layout); }
+        unsafe {
+            std::alloc::dealloc(self.ptr, layout);
+        }
     }
 }
 
